@@ -13,7 +13,7 @@
 
 Situations like the above are common, which is why many people turn to a product like **Nginx** as a [reverse proxy](http://en.wikipedia.org/wiki/Reverse_proxy) service, placing it in front of the various backend services required by their app.  Nginx allows a host of reverse proxy capabilities, including caching, doctoring responses, and redirecting.  Now with the **nginx-auth0** module, you can easily enforce Auth0 authentication and authorization, simply by configuring it with your Auth0 app's information.  Following are the specific scenarios that the **nginx-auth0** module is designed to support:
 
-### Web API Scenario
+### Securing a Web API
 
 The simplest **nginx-auth0** scenario is when you're building an app that has a separate frontend app (mobile or web) that gets all of its data from a set of existing backend HTTP services.  In this case the module can be configured to secure any number of necessary endpoints, all proxied through Nginx.  A secured endpoint can be configured to:
 
@@ -22,7 +22,7 @@ The simplest **nginx-auth0** scenario is when you're building an app that has a 
 
 Of course the client app will first need to obtain a valid access token, which can be done using one of the [Auth0 frontend libraries or widgets](https://auth0.com/docs).  If the client does not pass a valid token, the module will return an HTTP `401 Unauthorized` error.
 
-### Website Scenario (Coming Soon)
+### Securing a Website (Coming Soon)
 
 If your app is a more traditional website, you may not have the luxury of modifying the frontend code since most of it is rendered server-side.  In this case, we can fall back to the standard mechanism used by web browsers to carry user identification: HTTP cookies.
 
