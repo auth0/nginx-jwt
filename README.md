@@ -11,7 +11,7 @@
 * Your backend is a 3rd party service and it doesn't support token-based authentication
 * Your app is a more traditional web application where there isn't a clean separation of frontend and backend, yet you still would like to secure it without having to alter any of the website code
 
-Situations like the above are common, which is why many people turn to a product like **Nginx** as a [reverse proxy](http://en.wikipedia.org/wiki/Reverse_proxy) service, placing it in front of the various backend services required by their app.  Nginx allows a host of reverse proxy capabilities, including caching, doctoring responses, and redirecting.  Now with the **nginx-auth0** module, you can easily enforce Auth0 authentication and authorization, simply by configuring it with your Auth0 app's information.  Following are the specific scenarios that the **nginx-auth0** module is designed to support:
+Situations like the above are common, which is why many people turn to a product like **Nginx** as a [reverse proxy](http://en.wikipedia.org/wiki/Reverse_proxy) service, placing it in front of the various backend services required by their app.  Nginx allows a host of reverse proxy capabilities, such as caching, adding SSL, and redirecting.  Now with the **nginx-auth0** module, you can easily enforce Auth0 authentication and authorization, simply by configuring it with your Auth0 app's information.  Following are the specific scenarios that the **nginx-auth0** module is designed to support:
 
 ### Securing a Web API
 
