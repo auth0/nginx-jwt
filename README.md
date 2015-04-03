@@ -27,3 +27,19 @@ Of course the client app will first need to obtain a valid access token, which c
 If your app is a more traditional website, you may not have the luxury of modifying the frontend code since most of it is rendered server-side.  In this case, we can fall back to the standard mechanism used by web browsers to carry user identification: HTTP cookies.
 
 Like the [Web API](#securing-a-web-api) scenario, the **nginx-auth0** module can be configured to secure specific URL endpoints in your website.  If a user browses to one of those URL's and their browser is not passing a valid cookie, the module will redirect them to the appropriate Auth0 login page (ex: https://your-app.auth0.com/authorize/...).  When they successfully log in, they will be redirected back to the Nginx server where the module will extract the JWT access token, generate a valid cookie, and send it back to the browser with the originally requested website resource.  For subsequent requests to the server, the browser will continue to pass the cookie, which the module will validate and continue allow access to the backing service.
+
+## Development (Mac OS)
+
+The best way to develop and test the module is to run it in a virtualized environment.  This allows you to run Ngnix separate from your host machine (i.e. your Mac) in a controlled execution environment.  It also allows you to easily run any number of backing services that Nginx will reverse proxy to.
+
+This repo contains everything you need to do just that.  It's set up to run Nginx as well as API server in individual [Docker](http://www.docker.com) containers.  To get everything running, do the following:
+
+1. Make sure you have [boot2docker](http://boot2docker.io/) installed, which makes it easy to run Docker on Mac OS
+
+1. Install and execute the Docker containers using the development script:  
+
+  ```bash
+  sh dev.sh
+  ```
+
+  **NOTE**: On the first run the script may take a few minutes to download all the base Docker images.  Successive runs are much faster. 
