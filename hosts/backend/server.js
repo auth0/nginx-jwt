@@ -2,7 +2,7 @@ var express = require('express');
 var app = express();
 
 app.get('/', function (req, res) {
-    res.send('API root');
+    res.send('Backend API root');
 });
 
 app.get('/secure', function (req, res) {
