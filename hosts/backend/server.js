@@ -9,6 +9,8 @@ app.get('/', function (req, res) {
 });
 
 app.get('/secure', function (req, res) {
+    console.log('Authorization header:', req.get('Authorization'));
+
     res.json({
         message: 'This endpoint needs to be secure.'
     });
