@@ -6,7 +6,7 @@
     "test": "HOST_IP=$(boot2docker ip) mocha ./test_*.js"
   },
   "dependencies": {
-    "jws": "^2.0.0",
+    "jsonwebtoken": "^4.2.2",
     "mocha": "^2.2.1",
     "super-request": "0.0.8"
   }
