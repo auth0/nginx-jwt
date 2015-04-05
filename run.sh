@@ -12,6 +12,10 @@ docker rmi -f backend-image &>/dev/null
 docker build -t="backend-image" --force-rm hosts/backend
 docker run --name backend -d -p 5000:5000 backend-image
 
+echo "${cyan}Prepping files for the proxy (Nginx) container...${NC}"
+mkdir -p hosts/proxy/nginx/lua
+cp nginx-jwt.lua hosts/proxy/nginx/lua
+
 echo "${cyan}Restarting the proxy (Nginx) container...${NC}"
 docker rm -f proxy &>/dev/null
 docker rmi -f proxy-image &>/dev/null
