@@ -14,7 +14,9 @@ docker run --name backend -d -p 5000:5000 backend-image
 
 echo "${cyan}Restarting the proxy (Nginx) container...${NC}"
 docker rm -f proxy &>/dev/null
-docker run --name proxy -d -p 80:80 --add-host "backend_host:$HOST_IP" -v "$PWD/hosts/proxy/nginx.conf":/etc/nginx/nginx.conf:ro nginx
+docker rmi -f proxy-image &>/dev/null
+docker build -t="proxy-image" --force-rm hosts/proxy
+docker run --name proxy -d -p 80:80 --add-host "backend_host:$HOST_IP" proxy-image
 
 echo "${cyan}Proxy:${NC}"
 echo curl http://$HOST_IP
