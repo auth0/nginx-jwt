@@ -8,7 +8,7 @@ var jwt = require('jsonwebtoken');
 var baseUrl = 'http://' + process.env.HOST_IP;
 var JWT_SECRET = "JWT's are the best!";
 
-describe('proxy endpoint', function () {
+describe('proxy', function () {
     describe("GET /", function () {
         it("should return 200 with expected proxied response", function () {
             return request(baseUrl)
