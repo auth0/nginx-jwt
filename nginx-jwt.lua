@@ -1,3 +1,4 @@
+-- require Authorization request header
 local auth_header = ngx.var.http_Authorization
 
 if auth_header == nil then
@@ -6,6 +7,7 @@ if auth_header == nil then
 else
     ngx.log(ngx.INFO, "Authorization: " .. auth_header)
 
+    -- require Bearer token
     local _, _, token = string.find(auth_header, "Bearer%s+(.+)")
 
     if token == nil then
