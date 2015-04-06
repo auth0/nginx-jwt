@@ -1,0 +1,6 @@
+{
+  "node": true,
+  "unused": true,
+  "strict": true,
+  "curly": true
+}

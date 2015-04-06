@@ -18,3 +18,10 @@ docker run --name proxy -d -p 80:80 --add-host "backend_host:$HOST_IP" -v "$PWD/
 
 echo "${cyan}Proxy:${NC}"
 echo curl http://$HOST_IP
+
+echo "${cyan}Running integration tests:${NC}"
+cd test
+# make sure npm packages are installed
+npm install
+# run tests
+npm test

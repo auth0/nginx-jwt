@@ -62,7 +62,7 @@ This repo contains everything you need to do just that.  It's set up to run Ngin
 
 1. Make sure you have [boot2docker](http://boot2docker.io/) installed, which makes it easy to run Docker on Mac OS
 
-1. Install and execute the Docker containers using the executable run script:  
+1. Install and execute the Docker containers and run the integration tests:  
 
   ```bash
   ./run.sh

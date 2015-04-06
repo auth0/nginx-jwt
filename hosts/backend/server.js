@@ -1,11 +1,16 @@
 var express = require('express');
+var morgan = require('morgan');
+
 var app = express();
+app.use(morgan('combined'));
 
 app.get('/', function (req, res) {
     res.send('Backend API root');
 });
 
 app.get('/secure', function (req, res) {
+    console.log('Authorization header:', req.get('Authorization'));
+
     res.json({
         message: 'This endpoint needs to be secure.'
     });
