@@ -29,6 +29,9 @@ function M.auth(secret)
                 ngx.exit(ngx.HTTP_UNAUTHORIZED)
             else
                 ngx.log(ngx.INFO, "JWT: " .. cjson.encode(jwt_obj))
+
+                -- write the X-Auth-UserId header 
+                ngx.header["X-Auth-UserId"] = jwt_obj.payload.sub
                 return
             end
         end
