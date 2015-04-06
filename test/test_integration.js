@@ -6,7 +6,7 @@ var request = require('super-request');
 var jwt = require('jsonwebtoken');
 
 var baseUrl = 'http://' + process.env.HOST_IP;
-var JWT_SECRET = "JWT's are the best!";
+var JWT_SECRET = "JWTs are the best!";
 
 describe('proxy', function () {
     describe("GET /", function () {
