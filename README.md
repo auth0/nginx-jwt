@@ -27,6 +27,12 @@ Install steps:
     ```
 1. Install the [lua-resty-jwt](https://github.com/SkyLothar/lua-resty-jwt#installation) dependency on your Nginx server.
 1. Install the [lua-resty-hmac](https://github.com/jkeys089/lua-resty-hmac#installation) dependency on your Nginx server.
+1. Export the `JWT_SECRET` environment variable on the Nginx host, setting it equal to your JWT secret.  Then expose it to Nginx server:  
+    ```lua
+    # nginx.conf:
+
+    env JWT_SECRET;
+    ```
 1. Use the [access_by_lua](https://github.com/openresty/lua-nginx-module#access_by_lua) directive to call the `nginx-jwt.auth` function before executing any [proxy_* directives](http://nginx.org/en/docs/http/ngx_http_proxy_module.html):  
     ```lua
     # nginx.conf:
@@ -35,7 +41,7 @@ Install steps:
         location /secure {
             access_by_lua '
                 local jwt = require("nginx-jwt")
-                jwt.auth("my JWT secret")
+                jwt.auth()
             ';
 
             proxy_pass http://my-backend.com$uri;
@@ -48,9 +54,9 @@ Install steps:
 
 ### auth
 
-`syntax: jwt.auth(secret)`
+`syntax: jwt.auth()`
 
-Authenticates the current request, requiring a JWT token that can be validated using the provided `secret`.
+Authenticates the current request, requiring a JWT bearer token in the `Authorization` request header.  Verification uses the value set in the `JWT_SECRET` environment variable.
 
 This function should be called within the [access_by_lua](https://github.com/openresty/lua-nginx-module#access_by_lua) or [access_by_lua_file](https://github.com/openresty/lua-nginx-module#access_by_lua_file) directive so that it can occur before the Nginx **content** [phase](http://wiki.nginx.org/Phases).
 

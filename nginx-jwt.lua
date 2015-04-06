@@ -1,9 +1,12 @@
 local jwt = require "resty.jwt"
 local cjson = require "cjson"
+local secret = os.getenv("JWT_SECRET")
+
+assert(secret ~= nil, "Environment variable JWT_SECRET not set")
 
 local M = {}
 
-function M.auth(secret)
+function M.auth()
     -- require Authorization request header
     local auth_header = ngx.var.http_Authorization
 
