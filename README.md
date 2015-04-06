@@ -100,11 +100,14 @@ In the above scenario, the user has been authenticated (identified) and they are
 
 The best way to develop and test the **nginx-jwt** module is to run it in a virtualized development environment.  This allows you to run Ngnix separate from your host machine (i.e. your Mac) in a controlled execution environment.  It also allows you to easily test the module with any number of backing services that Nginx will reverse proxy to.
 
-This repo contains everything you need to do just that.  It's set up to run Nginx as well as a simple backend server in individual [Docker](http://www.docker.com) containers.  To get everything running, do the following:
+This repo contains everything you need to do just that.  It's set up to run Nginx as well as a simple backend server in individual [Docker](http://www.docker.com) containers.
 
-1. Make sure you have [boot2docker](http://boot2docker.io/) installed, which makes it easy to run Docker on Mac OS
+### Prerequisites (Mac OS)
 
-1. Install and execute the Docker containers and run the integration tests:  
+1. [boot2docker](http://boot2docker.io/)
+1. [Node.js](https://nodejs.org/)
+
+### Build the containers and run integration tests
 
   ```bash
   ./run.sh
