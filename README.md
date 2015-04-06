@@ -4,9 +4,55 @@
 
 ## Table of Contents
 
+* [Installation](#installation)
+* [API](#api)
 * [Overview](#overview)
-* [Usage](#usage)
 * [Contributing](#contributing)
+
+## Installation
+
+It is recommended to use the latest [ngx_openresty bundle](http://openresty.org/) directly as this module (and its dependencies) depend on components that are installed by openresty.
+
+Install steps:
+
+1. Deploy the [`nginx-jwt.lua`](nginx-jwt.lua) script to your Nginx server.
+1. Specify this library's path in ngx_lua's [lua_package_path](https://github.com/openresty/lua-nginx-module#lua_package_path) directive:  
+    ```lua
+    # nginx.conf:
+
+    http {
+        lua_package_path "/path/to/nginx-jwt.lua;;";
+        ...
+    }
+    ```
+1. Install the [lua-resty-jwt](https://github.com/SkyLothar/lua-resty-jwt#installation) dependency on your Nginx server.
+1. Install the [lua-resty-hmac](https://github.com/jkeys089/lua-resty-hmac#installation) dependency on your Nginx server.
+1. Use the [access_by_lua](https://github.com/openresty/lua-nginx-module#access_by_lua) directive to call the `nginx-jwt.auth` function before executing any [proxy_* directives](http://nginx.org/en/docs/http/ngx_http_proxy_module.html):  
+    ```lua
+    # nginx.conf:
+
+    server {
+        location /secure {
+            access_by_lua '
+                local jwt = require("nginx-jwt")
+                jwt.auth("my JWT secret")
+            ';
+
+            proxy_pass http://my-backend.com$uri;
+        }
+    }
+    ```
+
+
+## API
+
+### auth
+
+`syntax: jwt.auth(secret)`
+
+Authenticates the current request, requiring a JWT token that can be validated using the provided `secret`.
+
+This function should be called within the [access_by_lua](https://github.com/openresty/lua-nginx-module#access_by_lua) or [access_by_lua_file](https://github.com/openresty/lua-nginx-module#access_by_lua_file) directive so that it can occur before the Nginx **content** [phase](http://wiki.nginx.org/Phases).
 
 ## Overview
 
@@ -49,10 +95,6 @@ The Nginx server, with the help of the **nginx-jwt** module can now sit in front
 ### Authorization
 
 In the above scenario, the user has been authenticated (identified) and they are then authorized to access the `/secured/resource` endpoint simply because they are a valid user.  However, often times your endpoint requires that a user also be in a specific security role or have certain security rights.  The **nginx-jwt** module can be configured to enforce this by requiring the existence of a specific claim.  Claims are just data in the JWT payload and since the JWT is created and signed by the authentication service, they can be trusted.
-
-## Usage
-
-(coming soon)
 
 ## Contributing
 
