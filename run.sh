@@ -13,8 +13,14 @@ docker build -t="backend-image" --force-rm hosts/backend
 docker run --name backend -d -p 5000:5000 backend-image
 
 echo "${cyan}Prepping files for the proxy (Nginx) container...${NC}"
+rm -rf lib
+curl https://codeload.github.com/SkyLothar/lua-resty-jwt/tar.gz/master | tar -xz --strip 1 lua-resty-jwt-master/lib
+curl https://codeload.github.com/jkeys089/lua-resty-hmac/tar.gz/master | tar -xz --strip 1 lua-resty-hmac-master/lib
+rm -rf hosts/proxy/nginx/lua
 mkdir -p hosts/proxy/nginx/lua
 cp nginx-jwt.lua hosts/proxy/nginx/lua
+cp -r lib/resty hosts/proxy/nginx/lua
+cp -r lib/resty hosts/proxy/nginx/lua
 
 echo "${cyan}Restarting the proxy (Nginx) container...${NC}"
 docker rm -f proxy &>/dev/null
