@@ -16,11 +16,12 @@ echo "${cyan}Prepping files for the proxy (Nginx) container...${NC}"
 rm -rf lib
 curl https://codeload.github.com/SkyLothar/lua-resty-jwt/tar.gz/master | tar -xz --strip 1 lua-resty-jwt-master/lib
 curl https://codeload.github.com/jkeys089/lua-resty-hmac/tar.gz/master | tar -xz --strip 1 lua-resty-hmac-master/lib
+curl https://codeload.github.com/aiq/basexx/tar.gz/v0.1.0 | tar -xz --strip 1 basexx-0.1.0/lib
 rm -rf hosts/proxy/nginx/lua
 mkdir -p hosts/proxy/nginx/lua
 cp nginx-jwt.lua hosts/proxy/nginx/lua
 cp -r lib/resty hosts/proxy/nginx/lua
-cp -r lib/resty hosts/proxy/nginx/lua
+cp -r lib/basexx.lua hosts/proxy/nginx/lua
 
 echo "${cyan}Restarting the proxy (Nginx) container...${NC}"
 docker rm -f proxy &>/dev/null

@@ -1,8 +1,24 @@
 local jwt = require "resty.jwt"
 local cjson = require "cjson"
+local basexx = require "basexx"
 local secret = os.getenv("JWT_SECRET")
 
 assert(secret ~= nil, "Environment variable JWT_SECRET not set")
+
+if os.getenv("JWT_SECRET_IS_BASE64_ENCODED") == 'true' then
+    -- convert from URL-safe Base64 to Base64
+    local r = #secret % 4
+    if r == 2 then
+        secret = secret .. "=="
+    elseif r == 3 then
+        secret = secret .. "="
+    end
+    secret = string.gsub(secret, "-", "+")
+    secret = string.gsub(secret, "_", "/")
+
+    -- convert from Base64 to UTF-8 string
+    secret = basexx.from_base64(secret)
+end
 
 local M = {}
 
@@ -33,7 +49,7 @@ function M.auth()
             else
                 ngx.log(ngx.INFO, "JWT: " .. cjson.encode(jwt_obj))
 
-                -- write the X-Auth-UserId header 
+                -- write the X-Auth-UserId header
                 ngx.header["X-Auth-UserId"] = jwt_obj.payload.sub
                 return
             end

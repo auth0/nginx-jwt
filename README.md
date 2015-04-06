@@ -27,11 +27,18 @@ Install steps:
     ```
 1. Install the [lua-resty-jwt](https://github.com/SkyLothar/lua-resty-jwt#installation) dependency on your Nginx server.
 1. Install the [lua-resty-hmac](https://github.com/jkeys089/lua-resty-hmac#installation) dependency on your Nginx server.
+1. Install the [basexx](https://github.com/aiq/basexx) dependency on your Nginx server.
 1. Export the `JWT_SECRET` environment variable on the Nginx host, setting it equal to your JWT secret.  Then expose it to Nginx server:  
     ```lua
     # nginx.conf:
 
     env JWT_SECRET;
+    ```
+1. If your JWT secret is URL-Base64 encoded, export the `JWT_SECRET_IS_BASE64_ENCODED` environment variable on the Nginx host, setting it equal to `true`.  Then expose it to Nginx server:  
+    ```lua
+    # nginx.conf:
+
+    env JWT_SECRET_IS_BASE64_ENCODED;
     ```
 1. Use the [access_by_lua](https://github.com/openresty/lua-nginx-module#access_by_lua) directive to call the `nginx-jwt.auth` function before executing any [proxy_* directives](http://nginx.org/en/docs/http/ngx_http_proxy_module.html):  
     ```lua
@@ -56,7 +63,7 @@ Install steps:
 
 `syntax: jwt.auth()`
 
-Authenticates the current request, requiring a JWT bearer token in the `Authorization` request header.  Verification uses the value set in the `JWT_SECRET` environment variable.
+Authenticates the current request, requiring a JWT bearer token in the `Authorization` request header.  Verification uses the value set in the `JWT_SECRET` (and optionally `JWT_SECRET_IS_BASE64_ENCODED`) environment variables.
 
 This function should be called within the [access_by_lua](https://github.com/openresty/lua-nginx-module#access_by_lua) or [access_by_lua_file](https://github.com/openresty/lua-nginx-module#access_by_lua_file) directive so that it can occur before the Nginx **content** [phase](http://wiki.nginx.org/Phases).
 
