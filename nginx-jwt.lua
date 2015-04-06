@@ -1,6 +1,9 @@
+local jwt = require "resty.jwt"
+local cjson = require "cjson"
+
 local M = {}
 
-function M.auth(ngx)
+function M.auth(secret)
     -- require Authorization request header
     local auth_header = ngx.var.http_Authorization
 
@@ -18,7 +21,16 @@ function M.auth(ngx)
             ngx.exit(ngx.HTTP_UNAUTHORIZED)
         else
             ngx.log(ngx.INFO, "Token: " .. token)
-            return
+
+            -- require valid JWT
+            local jwt_obj = jwt:verify(secret, token)
+            if jwt_obj.verified == false then
+                ngx.log(ngx.WARN, "Invalid token: ".. jwt_obj.reason)
+                ngx.exit(ngx.HTTP_UNAUTHORIZED)
+            else
+                ngx.log(ngx.INFO, "JWT: " .. cjson.encode(jwt_obj))
+                return
+            end
         end
     end
 end
