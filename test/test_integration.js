@@ -56,6 +56,37 @@ describe('proxy', function () {
                     .end();
             });
         });
+
+        describe("GET /secure/admin", function () {
+            it("should return 401 when an authenticated user still isn't authorized via claims", function () {
+                var token = jwt.sign(
+                    { sub: 'foo-user', roles: 'customer' },
+                    secret
+                );
+
+                return request(url)
+                    .get('/secure/admin')
+                    .headers({'Authorization': 'Bearer ' + token})
+                    .expect(401)
+                    .end();
+            });
+
+            it("should return 200 when an authenticated user is authorized via claims", function () {
+                var token = jwt.sign(
+                    { sub: 'foo-user', roles: 'customer admin' },
+                    secret
+                );
+
+                return request(url)
+                    .get('/secure/admin')
+                    .headers({'Authorization': 'Bearer ' + token})
+                    .expect(200)
+                    .expect('Content-Type', /json/)
+                    .expect({ message: 'This endpoint needs to be secure for an admin.' })
+                    .expect('X-Auth-UserId', 'foo-user')
+                    .end();
+            });
+        });
     });
 
     describe("configured with URL-safe base-64 encoded secret", function () {

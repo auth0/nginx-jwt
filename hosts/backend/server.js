@@ -16,6 +16,14 @@ app.get('/secure', function (req, res) {
     });
 });
 
+app.get('/secure/admin', function (req, res) {
+    console.log('Authorization header:', req.get('Authorization'));
+
+    res.json({
+        message: 'This endpoint needs to be secure for an admin.'
+    });
+});
+
 var server = app.listen(5000, function () {
     var host = server.address().address;
     var port = server.address().port;
