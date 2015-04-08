@@ -61,9 +61,17 @@ Install steps:
 
 ### auth
 
-`syntax: auth()`
+`syntax: auth([claims])`
 
 Authenticates the current request, requiring a JWT bearer token in the `Authorization` request header.  Verification uses the value set in the `JWT_SECRET` (and optionally `JWT_SECRET_IS_BASE64_ENCODED`) environment variables.
+
+If authentication succeeds, then by default the current request is authorized by virtue of a valid user identity.  More specific authorization can be accomplished via the optional `claims` parameter.  If provided, it must be a Lua [Table](http://www.lua.org/pil/2.5.html) where each key is the name of a desired claim and each value is a [pattern](http://www.lua.org/pil/20.2.html) that can be used to test the actual value of the claim.
+
+For example if we wanted to ensure that the JWT had an `aud` (Audience) claim value that started with `foo:` and a `role` claim that had the exact value of `customer`, then the `claims` parameter might look like this:
+
+```lua
+jwt.auth({aud="^foo:", role="^customer$"})
+```
 
 This function should be called within the [access_by_lua](https://github.com/openresty/lua-nginx-module#access_by_lua) or [access_by_lua_file](https://github.com/openresty/lua-nginx-module#access_by_lua_file) directive so that it can occur before the Nginx **content** [phase](http://wiki.nginx.org/Phases).
 
