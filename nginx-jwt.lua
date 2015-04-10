@@ -22,7 +22,7 @@ end
 
 local M = {}
 
-function M.auth(claims)
+function M.auth(claim_specs)
     -- require Authorization request header
     local auth_header = ngx.var.http_Authorization
 
@@ -49,18 +49,18 @@ function M.auth(claims)
             else
                 ngx.log(ngx.INFO, "JWT: " .. cjson.encode(jwt_obj))
 
-                -- require specific claims
-                if claims ~= nil then
+                -- optionally require specific claims
+                if claim_specs ~= nil then
                     --TODO: test
                     -- make sure they passed a Table
-                    if type(claims) ~= 'table' then
-                        ngx.log(ngx.STDERR, "Configuration error: claims arg must be a table")
+                    if type(claim_specs) ~= 'table' then
+                        ngx.log(ngx.STDERR, "Configuration error: claim_specs arg must be a table")
                         ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
                     end
 
                     -- process each claim
                     local blocking_claim = ""
-                    for claim, spec in pairs(claims) do
+                    for claim, spec in pairs(claim_specs) do
                         -- make sure token actually contains the claim
                         local claim_value = jwt_obj.payload[claim]
                         if claim_value == nil then
@@ -90,7 +90,7 @@ function M.auth(claims)
                         -- make sure claim spec is a supported type
                         -- TODO: test
                         if spec_action == nil then
-                            ngx.log(ngx.STDERR, "Configuration error: claims arg claim '" .. claim .. "' must be a string or a table")
+                            ngx.log(ngx.STDERR, "Configuration error: claim_specs arg claim '" .. claim .. "' must be a string or a table")
                             ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
                         end
 
