@@ -58,11 +58,11 @@ describe('proxy', function () {
         });
 
         describe("GET /secure/admin", function () {
-            it("should return 401 when an authenticated user still isn't authorized via claims", function () {
+            it("should return 401 when an authenticated user is missing a required claim", function () {
                 var token = jwt.sign(
-                    { sub: 'foo-user', roles: 'customer' },
-                    secret
-                );
+                    // roles claim missing
+                    { sub: 'foo-user', aud: 'foo1:bar' },
+                    secret);
 
                 return request(url)
                     .get('/secure/admin')
@@ -71,11 +71,37 @@ describe('proxy', function () {
                     .end();
             });
 
-            it("should return 200 when an authenticated user is authorized via claims", function () {
+            it("should return 401 when a claim of an authenticated user doesn't pass a 'pattern' claim spec", function () {
                 var token = jwt.sign(
-                    { sub: 'foo-user', roles: 'customer admin' },
-                    secret
-                );
+                    // aud claim has incorrect value
+                    { sub: 'foo-user', aud: 'foo1:bar', roles: ["sales", "marketing"] },
+                    secret);
+
+                return request(url)
+                    .get('/secure/admin')
+                    .headers({'Authorization': 'Bearer ' + token})
+                    .expect(401)
+                    .end();
+            });
+
+            it("should return 401 when a claim of an authenticated user doesn't pass a 'function' claim spec", function () {
+                var token = jwt.sign(
+                    // roles claim is missing 'marketing' role
+                    { sub: 'foo-user', aud: 'foo:bar', roles: ["sales"] },
+                    secret);
+
+                return request(url)
+                    .get('/secure/admin')
+                    .headers({'Authorization': 'Bearer ' + token})
+                    .expect(401)
+                    .end();
+            });
+
+            it("should return 200 when an authenticated user is also authorized by all claims", function () {
+                var token = jwt.sign(
+                    // everything is good
+                    { sub: 'foo-user', aud: 'foo:bar', roles: ["sales", "marketing"] },
+                    secret);
 
                 return request(url)
                     .get('/secure/admin')
@@ -99,8 +125,7 @@ describe('proxy', function () {
             it("should return a 200 with the expected response header when a valid JWT is passed", function () {
                 var token = jwt.sign(
                     { sub: 'foo-user' },
-                    secret
-                );
+                    secret);
 
                 return request(url)
                     .get('/secure')
