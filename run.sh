@@ -20,26 +20,25 @@ docker run --name backend -d -p 5000:5000 backend-image
 #      - config-unsupported-claim-spec-type
 #TODO: refactor bash code to dynamically perform below operations on all hosts/proxy subdirectories
 
-echo "${cyan}Prepping files for the proxy (Nginx) container...${NC}"
+echo "${cyan}Fetching Lua depedencies...${NC}"
+function load_dependency {
+    local TARGET="$1"
+    local USER="$2"
+    local REPO="$3"
+    local COMMIT="$4"
 
-if [ ! -e "lib/resty/jwt.lua" ]; then
-    COMMIT="586a507f9e57555bdd7a7bc152303c91b4a04527"
-    curl https://codeload.github.com/SkyLothar/lua-resty-jwt/tar.gz/$COMMIT | tar -xz --strip 1 lua-resty-jwt-$COMMIT/lib
-else
-    echo "Dependency jwt.lua already downloaded."
-fi
-if [ ! -e "lib/resty/hmac.lua" ]; then
-    COMMIT="67bff3fd6b7ce4f898b4c3deec7a1f6050ff9fc9"
-    curl https://codeload.github.com/jkeys089/lua-resty-hmac/tar.gz/$COMMIT | tar -xz --strip 1 lua-resty-hmac-$COMMIT/lib
-else
-    echo "Dependency hmac.lua already downloaded."
-fi
-if [ ! -e "lib/basexx.lua" ]; then
-    RELEASE="0.1.0"
-    curl https://codeload.github.com/aiq/basexx/tar.gz/v$RELEASE | tar -xz --strip 1 basexx-$RELEASE/lib
-else
-    echo "Dependency basexx.lua already downloaded."
-fi
+    if [ -e "$TARGET" ]; then
+        echo "Dependency $TARGET already downloaded."
+    else
+        curl https://codeload.github.com/$USER/$REPO/tar.gz/$COMMIT | tar -xz --strip 1 $REPO-$COMMIT/lib
+    fi
+}
+
+load_dependency "lib/resty/jwt.lua" "SkyLothar" "lua-resty-jwt" "586a507f9e57555bdd7a7bc152303c91b4a04527"
+load_dependency "lib/resty/hmac.lua" "jkeys089" "lua-resty-hmac" "67bff3fd6b7ce4f898b4c3deec7a1f6050ff9fc9"
+load_dependency "lib/basexx.lua" "aiq" "basexx" "c91cf5438385d9f84f53d3ef27f855c52ec2ed76"
+
+echo "${cyan}Prepping files for the proxy (Nginx) container...${NC}"
 rm -rf hosts/proxy/normal-secret/nginx/lua
 rm -rf hosts/proxy/base64-secret/nginx/lua
 mkdir -p hosts/proxy/normal-secret/nginx/lua
