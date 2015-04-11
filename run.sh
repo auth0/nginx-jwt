@@ -22,9 +22,12 @@ docker run --name backend -d -p 5000:5000 backend-image
 
 echo "${cyan}Prepping files for the proxy (Nginx) container...${NC}"
 rm -rf lib
-curl https://codeload.github.com/SkyLothar/lua-resty-jwt/tar.gz/master | tar -xz --strip 1 lua-resty-jwt-master/lib
-curl https://codeload.github.com/jkeys089/lua-resty-hmac/tar.gz/master | tar -xz --strip 1 lua-resty-hmac-master/lib
-curl https://codeload.github.com/aiq/basexx/tar.gz/v0.1.0 | tar -xz --strip 1 basexx-0.1.0/lib
+COMMIT="586a507f9e57555bdd7a7bc152303c91b4a04527"
+curl https://codeload.github.com/SkyLothar/lua-resty-jwt/tar.gz/$COMMIT | tar -xz --strip 1 lua-resty-jwt-$COMMIT/lib
+COMMIT="67bff3fd6b7ce4f898b4c3deec7a1f6050ff9fc9"
+curl https://codeload.github.com/jkeys089/lua-resty-hmac/tar.gz/$COMMIT | tar -xz --strip 1 lua-resty-hmac-$COMMIT/lib
+RELEASE="0.1.0"
+curl https://codeload.github.com/aiq/basexx/tar.gz/v$RELEASE | tar -xz --strip 1 basexx-$RELEASE/lib
 rm -rf hosts/proxy/normal-secret/nginx/lua
 rm -rf hosts/proxy/base64-secret/nginx/lua
 mkdir -p hosts/proxy/normal-secret/nginx/lua
