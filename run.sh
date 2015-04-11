@@ -14,6 +14,12 @@ docker build -t="backend-image" --force-rm hosts/backend
 echo "${cyan}Starting a new backend image...${NC}"
 docker run --name backend -d -p 5000:5000 backend-image
 
+#TODO: rename 'normal-secret' proxy image to 'default'
+#TODO: create 2 more images/containers for 'configuration error scenarios':
+#      - config-claim_specs-not-table
+#      - config-unsupported-claim-spec-type
+#TODO: refactor bash code to dynamically perform below operations on all hosts/proxy subdirectories
+
 echo "${cyan}Prepping files for the proxy (Nginx) container...${NC}"
 rm -rf lib
 curl https://codeload.github.com/SkyLothar/lua-resty-jwt/tar.gz/master | tar -xz --strip 1 lua-resty-jwt-master/lib
