@@ -1,6 +1,7 @@
 #!/bin/sh
 
 cyan='\033[0;36m'
+blue='\033[0;34m'
 NC='\033[0m' # No Color
 
 # get boot2docker host ip
@@ -32,10 +33,6 @@ load_dependency "lib/resty/jwt.lua" "SkyLothar" "lua-resty-jwt" "586a507f9e57555
 load_dependency "lib/resty/hmac.lua" "jkeys089" "lua-resty-hmac" "67bff3fd6b7ce4f898b4c3deec7a1f6050ff9fc9"
 load_dependency "lib/basexx.lua" "aiq" "basexx" "c91cf5438385d9f84f53d3ef27f855c52ec2ed76"
 
-#TODO: create 2 more images/containers for 'configuration error scenarios':
-#      - config-claim_specs-not-table
-#      - config-unsupported-claim-spec-type
-
 # build proxy containers and images
 
 for PROXY_DIR in hosts/proxy/*; do
@@ -44,21 +41,21 @@ for PROXY_DIR in hosts/proxy/*; do
     PROXY_NAME="$(basename $PROXY_DIR)"
     echo "${cyan}Building container and image for the '$PROXY_NAME' proxy (Nginx) host...${NC}"
 
-    echo "Deploying Lua scripts and depedencies..."
+    echo "${blue}Deploying Lua scripts and depedencies${NC}"
     rm -rf hosts/proxy/$PROXY_NAME/nginx/lua
     mkdir -p hosts/proxy/$PROXY_NAME/nginx/lua
     cp nginx-jwt.lua hosts/proxy/$PROXY_NAME/nginx/lua
     cp -r lib/ hosts/proxy/$PROXY_NAME/nginx/lua
 
-    echo "Stopping the container and removing the image..."
+    echo "${blue}Stopping the container and removing the image${NC}"
     docker rm -f "proxy-$PROXY_NAME" &>/dev/null
     docker rmi -f "proxy-$PROXY_NAME-image" &>/dev/null
 
-    echo "Building the new image..."
+    echo "${blue}Building the new image${NC}"
     docker build -t="proxy-$PROXY_NAME-image" --force-rm hosts/proxy/$PROXY_NAME
 
     HOST_PORT="$(cat hosts/proxy/$PROXY_NAME/host_port)"
-    echo "Staring new container, binding it to Docker host port $HOST_PORT..."
+    echo "${blue}Staring new container, binding it to Docker host port $HOST_PORT${NC}"
     docker run --name "proxy-$PROXY_NAME" -d -p $HOST_PORT:80 --add-host "backend_host:$HOST_IP" "proxy-$PROXY_NAME-image"
 done
 
