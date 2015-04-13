@@ -14,12 +14,6 @@ docker build -t="backend-image" --force-rm hosts/backend
 echo "${cyan}Starting a new backend image...${NC}"
 docker run --name backend -d -p 5000:5000 backend-image
 
-#TODO: rename 'normal-secret' proxy image to 'default'
-#TODO: create 2 more images/containers for 'configuration error scenarios':
-#      - config-claim_specs-not-table
-#      - config-unsupported-claim-spec-type
-#TODO: refactor bash code to dynamically perform below operations on all hosts/proxy subdirectories
-
 echo "${cyan}Fetching Lua depedencies...${NC}"
 function load_dependency {
     local TARGET="$1"
@@ -38,29 +32,36 @@ load_dependency "lib/resty/jwt.lua" "SkyLothar" "lua-resty-jwt" "586a507f9e57555
 load_dependency "lib/resty/hmac.lua" "jkeys089" "lua-resty-hmac" "67bff3fd6b7ce4f898b4c3deec7a1f6050ff9fc9"
 load_dependency "lib/basexx.lua" "aiq" "basexx" "c91cf5438385d9f84f53d3ef27f855c52ec2ed76"
 
-echo "${cyan}Prepping files for the proxy (Nginx) container...${NC}"
-rm -rf hosts/proxy/normal-secret/nginx/lua
-rm -rf hosts/proxy/base64-secret/nginx/lua
-mkdir -p hosts/proxy/normal-secret/nginx/lua
-mkdir -p hosts/proxy/base64-secret/nginx/lua
-cp nginx-jwt.lua hosts/proxy/normal-secret/nginx/lua
-cp nginx-jwt.lua hosts/proxy/base64-secret/nginx/lua
-cp -r lib/resty hosts/proxy/normal-secret/nginx/lua
-cp -r lib/resty hosts/proxy/base64-secret/nginx/lua
-cp -r lib/basexx.lua hosts/proxy/normal-secret/nginx/lua
-cp -r lib/basexx.lua hosts/proxy/base64-secret/nginx/lua
+#TODO: rename 'normal-secret' proxy image to 'default'
+#TODO: create 2 more images/containers for 'configuration error scenarios':
+#      - config-claim_specs-not-table
+#      - config-unsupported-claim-spec-type
 
-echo "${cyan}Stopping the proxy (Nginx) containers and removing their images...${NC}"
-docker rm -f proxy &>/dev/null
-docker rm -f proxy-base64-secret &>/dev/null
-docker rmi -f proxy-image &>/dev/null
-docker rmi -f proxy-base64-secret-image &>/dev/null
-echo "${cyan}Building new proxy images...${NC}"
-docker build -t="proxy-image" --force-rm hosts/proxy/normal-secret
-docker build -t="proxy-base64-secret-image" --force-rm hosts/proxy/base64-secret
-echo "${cyan}Starting new proxy container...${NC}"
-docker run --name proxy -d -p 80:80 --add-host "backend_host:$HOST_IP" proxy-image
-docker run --name proxy-base64-secret -d -p 81:80 --add-host "backend_host:$HOST_IP" proxy-base64-secret-image
+# build proxy containers and images
+
+for PROXY_DIR in hosts/proxy/*; do
+    [ -d "${PROXY_DIR}" ] || continue # if not a directory, skip
+
+    PROXY_NAME="$(basename $PROXY_DIR)"
+    echo "${cyan}Building container and image for the '$PROXY_NAME' proxy (Nginx) host...${NC}"
+
+    echo "Deploying Lua scripts and depedencies..."
+    rm -rf hosts/proxy/$PROXY_NAME/nginx/lua
+    mkdir -p hosts/proxy/$PROXY_NAME/nginx/lua
+    cp nginx-jwt.lua hosts/proxy/$PROXY_NAME/nginx/lua
+    cp -r lib/ hosts/proxy/$PROXY_NAME/nginx/lua
+
+    echo "Stopping the container and removing the image..."
+    docker rm -f "proxy-$PROXY_NAME" &>/dev/null
+    docker rmi -f "proxy-$PROXY_NAME-image" &>/dev/null
+
+    echo "Building the new image..."
+    docker build -t="proxy-$PROXY_NAME-image" --force-rm hosts/proxy/$PROXY_NAME
+
+    HOST_PORT="$(cat hosts/proxy/$PROXY_NAME/host_port)"
+    echo "Staring new container, binding it to Docker host port $HOST_PORT..."
+    docker run --name "proxy-$PROXY_NAME" -d -p $HOST_PORT:80 --add-host "backend_host:$HOST_IP" "proxy-$PROXY_NAME-image"
+done
 
 echo "${cyan}Proxy:${NC}"
 echo curl http://$HOST_IP
