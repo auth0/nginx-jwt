@@ -32,7 +32,6 @@ load_dependency "lib/resty/jwt.lua" "SkyLothar" "lua-resty-jwt" "586a507f9e57555
 load_dependency "lib/resty/hmac.lua" "jkeys089" "lua-resty-hmac" "67bff3fd6b7ce4f898b4c3deec7a1f6050ff9fc9"
 load_dependency "lib/basexx.lua" "aiq" "basexx" "c91cf5438385d9f84f53d3ef27f855c52ec2ed76"
 
-#TODO: rename 'normal-secret' proxy image to 'default'
 #TODO: create 2 more images/containers for 'configuration error scenarios':
 #      - config-claim_specs-not-table
 #      - config-unsupported-claim-spec-type
