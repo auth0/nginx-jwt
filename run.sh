@@ -13,7 +13,7 @@ docker rmi -f backend-image &>/dev/null
 echo "${cyan}Building a new backend image...${NC}"
 docker build -t="backend-image" --force-rm hosts/backend
 echo "${cyan}Starting a new backend image...${NC}"
-docker run --name backend -d -p 5000:5000 backend-image
+docker run --name backend -d backend-image
 
 echo "${cyan}Fetching Lua depedencies...${NC}"
 function load_dependency {
