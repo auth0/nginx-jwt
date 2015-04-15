@@ -56,7 +56,7 @@ for PROXY_DIR in hosts/proxy/*; do
 
     HOST_PORT="$(cat hosts/proxy/$PROXY_NAME/host_port)"
     echo "${blue}Staring new container, binding it to Docker host port $HOST_PORT${NC}"
-    docker run --name "proxy-$PROXY_NAME" -d -p $HOST_PORT:80 --add-host "backend_host:$HOST_IP" "proxy-$PROXY_NAME-image"
+    docker run --name "proxy-$PROXY_NAME" -d -p $HOST_PORT:80 --link backend:backend "proxy-$PROXY_NAME-image"
 done
 
 echo "${cyan}Proxy:${NC}"
