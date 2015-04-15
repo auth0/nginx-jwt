@@ -4,9 +4,6 @@ cyan='\033[0;36m'
 blue='\033[0;34m'
 NC='\033[0m' # No Color
 
-# get boot2docker host ip
-HOST_IP=$(boot2docker ip)
-
 echo "${cyan}Stopping the backend container and removing its image...${NC}"
 docker rm -f backend &>/dev/null
 docker rmi -f backend-image &>/dev/null
@@ -59,12 +56,12 @@ for PROXY_DIR in hosts/proxy/*; do
     docker run --name "proxy-$PROXY_NAME" -d -p $HOST_PORT:80 --link backend:backend "proxy-$PROXY_NAME-image"
 done
 
-echo "${cyan}Proxy:${NC}"
-echo curl http://$HOST_IP
-
 echo "${cyan}Running integration tests:${NC}"
 cd test
 # make sure npm packages are installed
 npm install
 # run tests
 npm test
+
+echo "${cyan}Proxy:${NC}"
+echo curl http://$(boot2docker ip)
