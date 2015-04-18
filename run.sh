@@ -2,27 +2,27 @@
 
 cyan='\033[0;36m'
 blue='\033[0;34m'
-NC='\033[0m' # No Color
+no_color='\033[0m' # No Color
 
-echo "${cyan}Stopping the backend container and removing its image...${NC}"
+echo "${cyan}Stopping the backend container and removing its image...${no_color}"
 docker rm -f backend &>/dev/null
 docker rmi -f backend-image &>/dev/null
-echo "${cyan}Building a new backend image...${NC}"
+echo "${cyan}Building a new backend image...${no_color}"
 docker build -t="backend-image" --force-rm hosts/backend
-echo "${cyan}Starting a new backend image...${NC}"
+echo "${cyan}Starting a new backend image...${no_color}"
 docker run --name backend -d backend-image
 
-echo "${cyan}Fetching Lua depedencies...${NC}"
+echo "${cyan}Fetching Lua depedencies...${no_color}"
 function load_dependency {
-    local TARGET="$1"
-    local USER="$2"
-    local REPO="$3"
-    local COMMIT="$4"
+    local target="$1"
+    local user="$2"
+    local repo="$3"
+    local commit="$4"
 
-    if [ -e "$TARGET" ]; then
-        echo "Dependency $TARGET already downloaded."
+    if [ -e "$target" ]; then
+        echo "Dependency $target already downloaded."
     else
-        curl https://codeload.github.com/$USER/$REPO/tar.gz/$COMMIT | tar -xz --strip 1 $REPO-$COMMIT/lib
+        curl https://codeload.github.com/$user/$repo/tar.gz/$commit | tar -xz --strip 1 $repo-$commit/lib
     fi
 }
 
@@ -32,36 +32,36 @@ load_dependency "lib/basexx.lua" "aiq" "basexx" "c91cf5438385d9f84f53d3ef27f855c
 
 # build proxy containers and images
 
-for PROXY_DIR in hosts/proxy/*; do
-    [ -d "${PROXY_DIR}" ] || continue # if not a directory, skip
+for proxy_dir in hosts/proxy/*; do
+    [ -d "${proxy_dir}" ] || continue # if not a directory, skip
 
-    PROXY_NAME="$(basename $PROXY_DIR)"
-    echo "${cyan}Building container and image for the '$PROXY_NAME' proxy (Nginx) host...${NC}"
+    proxy_name="$(basename $proxy_dir)"
+    echo "${cyan}Building container and image for the '$proxy_name' proxy (Nginx) host...${no_color}"
 
-    echo "${blue}Deploying Lua scripts and depedencies${NC}"
-    rm -rf hosts/proxy/$PROXY_NAME/nginx/lua
-    mkdir -p hosts/proxy/$PROXY_NAME/nginx/lua
-    cp nginx-jwt.lua hosts/proxy/$PROXY_NAME/nginx/lua
-    cp -r lib/ hosts/proxy/$PROXY_NAME/nginx/lua
+    echo "${blue}Deploying Lua scripts and depedencies${no_color}"
+    rm -rf hosts/proxy/$proxy_name/nginx/lua
+    mkdir -p hosts/proxy/$proxy_name/nginx/lua
+    cp nginx-jwt.lua hosts/proxy/$proxy_name/nginx/lua
+    cp -r lib/ hosts/proxy/$proxy_name/nginx/lua
 
-    echo "${blue}Stopping the container and removing the image${NC}"
-    docker rm -f "proxy-$PROXY_NAME" &>/dev/null
-    docker rmi -f "proxy-$PROXY_NAME-image" &>/dev/null
+    echo "${blue}Stopping the container and removing the image${no_color}"
+    docker rm -f "proxy-$proxy_name" &>/dev/null
+    docker rmi -f "proxy-$proxy_name-image" &>/dev/null
 
-    echo "${blue}Building the new image${NC}"
-    docker build -t="proxy-$PROXY_NAME-image" --force-rm hosts/proxy/$PROXY_NAME
+    echo "${blue}Building the new image${no_color}"
+    docker build -t="proxy-$proxy_name-image" --force-rm hosts/proxy/$proxy_name
 
-    HOST_PORT="$(cat hosts/proxy/$PROXY_NAME/host_port)"
-    echo "${blue}Staring new container, binding it to Docker host port $HOST_PORT${NC}"
-    docker run --name "proxy-$PROXY_NAME" -d -p $HOST_PORT:80 --link backend:backend "proxy-$PROXY_NAME-image"
+    host_port="$(cat hosts/proxy/$proxy_name/host_port)"
+    echo "${blue}Staring new container, binding it to Docker host port $host_port${no_color}"
+    docker run --name "proxy-$proxy_name" -d -p $host_port:80 --link backend:backend "proxy-$proxy_name-image"
 done
 
-echo "${cyan}Running integration tests:${NC}"
+echo "${cyan}Running integration tests:${no_color}"
 cd test
 # make sure npm packages are installed
 npm install
 # run tests
 npm test
 
-echo "${cyan}Proxy:${NC}"
+echo "${cyan}Proxy:${no_color}"
 echo curl http://$(boot2docker ip)
