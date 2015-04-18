@@ -1,12 +1,15 @@
 #!/bin/sh
 
+set -o pipefail
+set -e
+
 cyan='\033[0;36m'
 blue='\033[0;34m'
 no_color='\033[0m' # No Color
 
 echo "${cyan}Stopping the backend container and removing its image...${no_color}"
-docker rm -f backend &>/dev/null
-docker rmi -f backend-image &>/dev/null
+docker rm -f backend &>/dev/null || true
+docker rmi -f backend-image &>/dev/null || true
 echo "${cyan}Building a new backend image...${no_color}"
 docker build -t="backend-image" --force-rm hosts/backend
 echo "${cyan}Starting a new backend image...${no_color}"
@@ -45,8 +48,8 @@ for proxy_dir in hosts/proxy/*; do
     cp -r lib/ hosts/proxy/$proxy_name/nginx/lua
 
     echo "${blue}Stopping the container and removing the image${no_color}"
-    docker rm -f "proxy-$proxy_name" &>/dev/null
-    docker rmi -f "proxy-$proxy_name-image" &>/dev/null
+    docker rm -f "proxy-$proxy_name" &>/dev/null || true
+    docker rmi -f "proxy-$proxy_name-image" &>/dev/null || true
 
     echo "${blue}Building the new image${no_color}"
     docker build -t="proxy-$proxy_name-image" --force-rm hosts/proxy/$proxy_name
