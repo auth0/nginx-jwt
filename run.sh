@@ -35,6 +35,15 @@ load_dependency "lib/basexx.lua" "aiq" "basexx" "c91cf5438385d9f84f53d3ef27f855c
 
 # build proxy containers and images
 
+echo "${cyan}Building base proxy image, if necessary...${NC}"
+image_exists=$(docker images | grep "proxy-base-image") || true
+if [ -z "$image_exists" ]; then
+    echo "${blue}Building image${no_color}"
+    docker build -t="proxy-base-image" --force-rm hosts/proxy
+else
+    echo "${blue}Base image already exists${no_color}"
+fi
+
 for proxy_dir in hosts/proxy/*; do
     [ -d "${proxy_dir}" ] || continue # if not a directory, skip
 
