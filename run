@@ -6,12 +6,14 @@ set -e
 cyan='\033[0;36m'
 blue='\033[0;34m'
 no_color='\033[0m' # No Color
+hosts_base_dir=./hosts
+proxy_base_dir=$hosts_base_dir/proxy
 
 echo "${cyan}Stopping the backend container and removing its image...${no_color}"
 docker rm -f backend &>/dev/null || true
 docker rmi -f backend-image &>/dev/null || true
 echo "${cyan}Building a new backend image...${no_color}"
-docker build -t="backend-image" --force-rm hosts/backend
+docker build -t="backend-image" --force-rm $hosts_base_dir/backend
 echo "${cyan}Starting a new backend image...${no_color}"
 docker run --name backend -d backend-image
 
@@ -39,29 +41,29 @@ echo "${cyan}Building base proxy image, if necessary...${NC}"
 image_exists=$(docker images | grep "proxy-base-image") || true
 if [ -z "$image_exists" ]; then
     echo "${blue}Building image${no_color}"
-    docker build -t="proxy-base-image" --force-rm hosts/proxy
+    docker build -t="proxy-base-image" --force-rm $proxy_base_dir
 else
     echo "${blue}Base image already exists${no_color}"
 fi
 
-for proxy_dir in hosts/proxy/*; do
+for proxy_dir in $proxy_base_dir/*; do
     [ -d "${proxy_dir}" ] || continue # if not a directory, skip
 
     proxy_name="$(basename $proxy_dir)"
     echo "${cyan}Building container and image for the '$proxy_name' proxy (Nginx) host...${no_color}"
 
     echo "${blue}Deploying Lua scripts and depedencies${no_color}"
-    rm -rf hosts/proxy/$proxy_name/nginx/lua
-    mkdir -p hosts/proxy/$proxy_name/nginx/lua
-    cp nginx-jwt.lua hosts/proxy/$proxy_name/nginx/lua
-    cp -r lib/ hosts/proxy/$proxy_name/nginx/lua
+    rm -rf $proxy_base_dir/$proxy_name/nginx/lua
+    mkdir -p $proxy_base_dir/$proxy_name/nginx/lua
+    cp nginx-jwt.lua $proxy_base_dir/$proxy_name/nginx/lua
+    cp -r lib/ $proxy_base_dir/$proxy_name/nginx/lua
 
     echo "${blue}Stopping the container and removing the image${no_color}"
     docker rm -f "proxy-$proxy_name" &>/dev/null || true
     docker rmi -f "proxy-$proxy_name-image" &>/dev/null || true
 
     echo "${blue}Building the new image${no_color}"
-    docker build -t="proxy-$proxy_name-image" --force-rm hosts/proxy/$proxy_name
+    docker build -t="proxy-$proxy_name-image" --force-rm $proxy_dir
 
     host_port="$(cat hosts/proxy/$proxy_name/host_port)"
     echo "${blue}Staring new container, binding it to Docker host port $host_port${no_color}"
