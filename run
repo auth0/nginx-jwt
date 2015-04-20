@@ -11,17 +11,10 @@ sh scripts/run_backend.sh
 # build Lua script dependencies
 ./build_deps
 
+# build base proxy image
+sh scripts/build_proxy_base_image.sh
+
 # build proxy containers and images
-
-echo "${cyan}Building base proxy image, if necessary...${NC}"
-image_exists=$(docker images | grep "proxy-base-image") || true
-if [ -z "$image_exists" ]; then
-    echo "${blue}Building image${no_color}"
-    docker build -t="proxy-base-image" --force-rm $proxy_base_dir
-else
-    echo "${blue}Base image already exists${no_color}"
-fi
-
 for proxy_dir in $proxy_base_dir/*; do
     [ -d "${proxy_dir}" ] || continue # if not a directory, skip
 
