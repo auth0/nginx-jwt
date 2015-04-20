@@ -3,11 +3,7 @@
 set -o pipefail
 set -e
 
-cyan='\033[0;36m'
-blue='\033[0;34m'
-no_color='\033[0m' # No Color
-hosts_base_dir=./hosts
-proxy_base_dir=$hosts_base_dir/proxy
+. scripts/common.sh
 
 echo "${cyan}Stopping the backend container and removing its image...${no_color}"
 docker rm -f backend &>/dev/null || true
