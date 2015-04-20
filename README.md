@@ -180,6 +180,12 @@ If you just want to see the **nginx-jwt** script in action, you can run the [`ba
 
 You can then run [cURL](http://curl.haxx.se/) commands against the endpoints exposed by the backend through Nginx.  The root URL of the proxy is reported back by the script and the available endpoints can be seen in the default proxy's [`nginx.conf`](hosts/proxy/default/nginx/conf/nginx.conf) file.
 
+If you want to run the script with one of the [other proxy containers](hosts/proxy), simply pass the name of the desired container.  Example:
+
+```bash
+./build run base64-secret
+```
+
 ### Build the containers and run integration tests
 
 This script is similar to `run` except it executes all the [integration tests](test/test_integration.js), which end up building and running additional proxy containers to simulate different scenarios.

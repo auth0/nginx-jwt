@@ -11,10 +11,18 @@ command=$1
 commands=(run tests deps clean)
 if [[ ! ${commands[*]} =~ "$command" ]]; then
     echo "${cyan}Unsupported command. Try:${no_color}"
-    echo "run: build and run backend and default proxy containers and report back the proxy's URL"
+    echo "run [NAME]: build and run backend and the specified proxy container and report back the proxy's URL"
     echo "tests: run the integration tests, building and running all necessary containers"
     echo "deps: build only Lua script dependencies"
     echo "clean: stop/delete all running containers and remove all images"
+fi
+
+if [[ "$command" == "run" ]]; then
+    run_proxy_name=${2:-default}
+    if [[ ! -d "hosts/proxy/${run_proxy_name}" ]]; then
+        echo "Not a valid proxy container to run: $run_proxy_name"
+        exit 1
+    fi
 fi
 
 commands=(run tests deps)
@@ -30,8 +38,8 @@ if [[ "$command" == "run" ]]; then
     # build proxy base image
     sh scripts/build_proxy_base_image.sh
 
-    # run default proxy container
-    sh scripts/run_proxy_container.sh default
+    # run specified proxy container
+    sh scripts/run_proxy_container.sh $run_proxy_name
 
     # report URL to proxy container
     echo "${cyan}Proxy:${no_color}"
@@ -53,7 +61,7 @@ fi
 if [[ "$command" == "clean" ]]; then
     # shut down all proxy containers
     for proxy_dir in hosts/proxy/*; do
-        [ -d "${proxy_dir}" ] || continue # if not a directory, skip
+        [[ -d "${proxy_dir}" ]] || continue # if not a directory, skip
 
         proxy_name="$(basename $proxy_dir)"
 
