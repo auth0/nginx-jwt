@@ -57,6 +57,7 @@ if [[ "$command" == "tests" ]]; then
     # run tests
     npm test
 
+    cd ..
     # shut down all proxy containers
     for proxy_dir in hosts/proxy/*; do
         [ -d "${proxy_dir}" ] || continue # if not a directory, skip
