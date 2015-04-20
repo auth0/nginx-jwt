@@ -9,6 +9,8 @@
 * [Overview](#overview)
 * [Contributing](#contributing)
 
+**NOTE**: If you want to quickly see this script in action, clone this repo and run the default Docker containers using the [`run` command](#build-and-run-the-default-containers) described in the [Contributing](#contributing) section.
+
 ## Installation
 
 It is recommended to use the latest [ngx_openresty bundle](http://openresty.org/) directly as this script (and its dependencies) depend on components that are installed by **openresty**.
@@ -161,10 +163,24 @@ This repo contains everything you need to do just that.  It's set up to run Ngin
 1. [boot2docker](http://boot2docker.io/)
 1. [Node.js](https://nodejs.org/)
 
+**NOTE**: On the first run, the following scripts may take a few minutes to download all the base Docker images, so go grab a fresh cup of coffee.  Successive runs are much faster.
+
+### Build and run the default containers
+
+If you just want to see the **nginx-jwt** script in action, you can run the [`backend`](hosts/backend) container and the [`default`](hosts/proxy/default) proxy (Nginx) container:
+
+```bash
+./build run
+```
+
+You can then run [cURL](http://curl.haxx.se/) commands against the endpoints exposed by the backend through Nginx.  The root URL of the proxy is reported back by the script and the available endpoints can be seen in the default proxy's [`nginx.conf`](hosts/proxy/default/nginx/conf/nginx.conf) file.
+
 ### Build the containers and run integration tests
 
-  ```bash
-  ./run.sh
-  ```
+This script is similar to `run` except it executes all the [integration tests](test/test_integration.js), which end up building and running additional proxy containers to simulate different scenarios.
 
-  **NOTE**: On the first run the script may take a few minutes to download all the base Docker images, so go grab a fresh cup of coffee.  Successive runs are much faster.
+```bash
+./build tests
+```
+
+Use this script to while developing new features.
