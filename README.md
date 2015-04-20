@@ -17,19 +17,24 @@ It is recommended to use the latest [ngx_openresty bundle](http://openresty.org/
 
 Install steps:
 
-1. Deploy the [`nginx-jwt.lua`](nginx-jwt.lua) script to your Nginx server.
-1. Specify this library's path in ngx_lua's [lua_package_path](https://github.com/openresty/lua-nginx-module#lua_package_path) directive:  
+1. Build the Lua script dependencies using this command:  
+
+    ```bash
+    ./build deps
+    ```
+
+    This will create a local `lib/` directory that contains all Lua scripts that the **nginx-jwt** depends on.
+
+1. Deploy the [`nginx-jwt.lua`](nginx-jwt.lua) script as well as the local `lib/` directory (generated in the previous step) to one directory on your Nginx server.
+1. Specify this directory's path using ngx_lua's [lua_package_path](https://github.com/openresty/lua-nginx-module#lua_package_path) directive:  
     ```lua
     # nginx.conf:
 
     http {
-        lua_package_path "/path/to/nginx-jwt.lua;;";
+        lua_package_path "/path/to/lua/scripts;;";
         ...
     }
     ```
-1. Install the [lua-resty-jwt](https://github.com/SkyLothar/lua-resty-jwt#installation) dependency on your Nginx server.
-1. Install the [lua-resty-hmac](https://github.com/jkeys089/lua-resty-hmac#installation) dependency on your Nginx server.
-1. Install the [basexx](https://github.com/aiq/basexx) dependency on your Nginx server.
 1. Export the `JWT_SECRET` environment variable on the Nginx host, setting it equal to your JWT secret.  Then expose it to Nginx server:  
     ```lua
     # nginx.conf:
