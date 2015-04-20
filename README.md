@@ -9,7 +9,7 @@
 * [Overview](#overview)
 * [Contributing](#contributing)
 
-**NOTE**: If you want to quickly see this script in action, clone this repo and run the default Docker containers using the [`run` command](#build-and-run-the-default-containers) described in the [Contributing](#contributing) section.
+**NOTE**: If you want to quickly see this script in action, clone the repo and run the default Docker containers using the [`build` ](#build-and-run-the-default-containers) command  described in the [Contributing](#contributing) section.
 
 ## Installation
 
