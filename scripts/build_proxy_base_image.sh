@@ -4,7 +4,6 @@ set -o pipefail
 set -e
 
 script_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
-
 . $script_dir/common.sh
 
 echo "${cyan}Building base proxy image, if necessary...${NC}"

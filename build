@@ -1,0 +1,71 @@
+#!/bin/sh
+
+set -o pipefail
+set -e
+
+. scripts/common.sh
+
+command=$1
+
+# ensure a supported command
+commands=(run tests deps)
+if [[ ! ${commands[*]} =~ "$command" ]]; then
+    echo "${cyan}Unsupported command. Try:${no_color}"
+    echo "run: build and run backend and default proxy containers and report back the proxy's URL"
+    echo "tests: run the integration tests, building and running all necessary containers"
+    echo "deps: build only Lua script dependencies"
+fi
+
+commands=(run tests deps)
+if [[ ${commands[*]} =~ "$command" ]]; then
+    # build Lua script dependencies
+    sh scripts/build_deps.sh
+fi
+
+commands=(run tests)
+if [[ ${commands[*]} =~ "$command" ]]; then
+    # run backend container
+    sh scripts/run_backend.sh
+
+    # build proxy base image
+    sh scripts/build_proxy_base_image.sh
+fi
+
+if [[ "$command" == "run" ]]; then
+    # run default proxy container
+    sh scripts/run_proxy_container.sh default
+
+    # report URL to proxy container
+    echo "${cyan}Proxy:${no_color}"
+    echo curl http://$(boot2docker ip)
+fi
+
+if [[ "$command" == "tests" ]]; then
+    # run all proxy containers
+    for proxy_dir in hosts/proxy/*; do
+        [ -d "${proxy_dir}" ] || continue # if not a directory, skip
+
+        proxy_name="$(basename $proxy_dir)"
+
+        sh scripts/run_proxy_container.sh $proxy_name
+    done
+
+    echo "${cyan}Running integration tests:${no_color}"
+    cd test
+    # make sure npm packages are installed
+    npm install
+    # run tests
+    npm test
+
+    # shut down all proxy containers
+    for proxy_dir in hosts/proxy/*; do
+        [ -d "${proxy_dir}" ] || continue # if not a directory, skip
+
+        proxy_name="$(basename $proxy_dir)"
+
+        sh scripts/stop_proxy_container.sh $proxy_name
+    done
+
+    # shut down backend container
+    sh scripts/stop_backend.sh
+fi
