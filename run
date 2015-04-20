@@ -5,14 +5,10 @@ set -e
 
 . scripts/common.sh
 
-echo "${cyan}Stopping the backend container and removing its image...${no_color}"
-docker rm -f backend &>/dev/null || true
-docker rmi -f backend-image &>/dev/null || true
-echo "${cyan}Building a new backend image...${no_color}"
-docker build -t="backend-image" --force-rm $hosts_base_dir/backend
-echo "${cyan}Starting a new backend image...${no_color}"
-docker run --name backend -d backend-image
+# run backend container
+sh scripts/run_backend.sh
 
+# build Lua script dependencies
 ./build_deps
 
 # build proxy containers and images
