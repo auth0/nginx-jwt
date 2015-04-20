@@ -3,6 +3,8 @@
 set -o pipefail
 set -e
 
+. scripts/common.sh
+
 echo "${cyan}Fetching Lua depedencies...${no_color}"
 function load_dependency {
     local target="$1"

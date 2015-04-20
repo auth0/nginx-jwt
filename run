@@ -3,40 +3,24 @@
 set -o pipefail
 set -e
 
-. scripts/common.sh
+# build Lua script dependencies
+./build_deps
 
 # run backend container
 sh scripts/run_backend.sh
-
-# build Lua script dependencies
-./build_deps
 
 # build base proxy image
 sh scripts/build_proxy_base_image.sh
 
 # build proxy containers and images
-for proxy_dir in $proxy_base_dir/*; do
+for proxy_dir in hosts/proxy/*; do
     [ -d "${proxy_dir}" ] || continue # if not a directory, skip
 
     proxy_name="$(basename $proxy_dir)"
-    echo "${cyan}Building container and image for the '$proxy_name' proxy (Nginx) host...${no_color}"
 
-    echo "${blue}Deploying Lua scripts and depedencies${no_color}"
-    rm -rf $proxy_base_dir/$proxy_name/nginx/lua
-    mkdir -p $proxy_base_dir/$proxy_name/nginx/lua
-    cp nginx-jwt.lua $proxy_base_dir/$proxy_name/nginx/lua
-    cp -r lib/ $proxy_base_dir/$proxy_name/nginx/lua
+    echo "proxy_name=$proxy_name"
 
-    echo "${blue}Stopping the container and removing the image${no_color}"
-    docker rm -f "proxy-$proxy_name" &>/dev/null || true
-    docker rmi -f "proxy-$proxy_name-image" &>/dev/null || true
-
-    echo "${blue}Building the new image${no_color}"
-    docker build -t="proxy-$proxy_name-image" --force-rm $proxy_dir
-
-    host_port="$(cat hosts/proxy/$proxy_name/host_port)"
-    echo "${blue}Staring new container, binding it to Docker host port $host_port${no_color}"
-    docker run --name "proxy-$proxy_name" -d -p $host_port:80 --link backend:backend "proxy-$proxy_name-image"
+    sh scripts/run_proxy_container.sh $proxy_name
 done
 
 echo "${cyan}Running integration tests:${no_color}"
