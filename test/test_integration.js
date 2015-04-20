@@ -8,8 +8,8 @@ var jwt = require('jsonwebtoken');
 var expect = require('chai').expect;
 var exec = require('child_process').exec;
 
-var baseUrl = 'http://' + process.env.HOST_IP;
-var url, secret, proxyName;
+var url = 'http://' + process.env.HOST_IP;
+var secret, proxyName;
 
 function runCommand (command, done) {
     exec(command, function (err) {
@@ -53,7 +53,6 @@ describe('proxy', function () {
 
     describe("configured with normal secret", function () {
         before(function (done) {
-            url = baseUrl;
             secret = 'JWTs are the best!';
 
             proxyName = 'default';
@@ -166,7 +165,6 @@ describe('proxy', function () {
 
     describe("configured with URL-safe base-64 encoded secret", function () {
         before(function (done) {
-            url = baseUrl + ':81';
             secret = 'This secret is stored base-64 encoded on the proxy host';
 
             proxyName = 'base64-secret';
@@ -197,7 +195,6 @@ describe('proxy', function () {
 
     describe("configured with claim_specs param that's not a table", function () {
         before(function (done) {
-            url = baseUrl + ':82';
             secret = 'JWTs are the best!';
 
             proxyName = 'config-claim_specs-not-table';
@@ -238,7 +235,6 @@ describe('proxy', function () {
 
     describe("configured with claim_specs param that contains a spec that's not a pattern (string) or table", function () {
         before(function (done) {
-            url = baseUrl + ':83';
             secret = 'JWTs are the best!';
 
             proxyName = 'config-unsupported-claim-spec-type';

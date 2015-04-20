@@ -22,7 +22,4 @@ cp -r lib/ $proxy_dir/nginx/lua
 
 echo "${blue}Building the new image${no_color}"
 docker build -t="proxy-$proxy_name-image" --force-rm $proxy_dir
-
-host_port="$(cat hosts/proxy/$proxy_name/host_port)"
-echo "${blue}Staring new container, binding it to Docker host port $host_port${no_color}"
-docker run --name "proxy-$proxy_name" -d -p $host_port:80 --link backend:backend "proxy-$proxy_name-image"
+docker run --name "proxy-$proxy_name" -d -p 80:80 --link backend:backend "proxy-$proxy_name-image"
