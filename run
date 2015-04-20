@@ -3,6 +3,8 @@
 set -o pipefail
 set -e
 
+. scripts/common.sh
+
 # build Lua script dependencies
 ./build_deps
 
@@ -12,23 +14,8 @@ sh scripts/run_backend.sh
 # build base proxy image
 sh scripts/build_proxy_base_image.sh
 
-# build proxy containers and images
-for proxy_dir in hosts/proxy/*; do
-    [ -d "${proxy_dir}" ] || continue # if not a directory, skip
-
-    proxy_name="$(basename $proxy_dir)"
-
-    echo "proxy_name=$proxy_name"
-
-    sh scripts/run_proxy_container.sh $proxy_name
-done
-
-echo "${cyan}Running integration tests:${no_color}"
-cd test
-# make sure npm packages are installed
-npm install
-# run tests
-npm test
+# run default proxy container
+sh scripts/run_proxy_container.sh default
 
 echo "${cyan}Proxy:${no_color}"
 echo curl http://$(boot2docker ip)
