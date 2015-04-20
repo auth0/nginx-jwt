@@ -189,3 +189,11 @@ This script is similar to `run` except it executes all the [integration tests](t
 ```
 
 Use this script to while developing new features.
+
+### Clean everything up
+
+If you need to simply stop/delete all running Docker containers and remove their associated images, use this command:
+
+```bash
+./build clean
+```

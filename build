@@ -8,12 +8,13 @@ set -e
 command=$1
 
 # ensure a supported command
-commands=(run tests deps)
+commands=(run tests deps clean)
 if [[ ! ${commands[*]} =~ "$command" ]]; then
     echo "${cyan}Unsupported command. Try:${no_color}"
     echo "run: build and run backend and default proxy containers and report back the proxy's URL"
     echo "tests: run the integration tests, building and running all necessary containers"
     echo "deps: build only Lua script dependencies"
+    echo "clean: stop/delete all running containers and remove all images"
 fi
 
 commands=(run tests deps)
@@ -52,12 +53,17 @@ if [[ "$command" == "tests" ]]; then
 
     echo "${cyan}Running integration tests:${no_color}"
     cd test
+
     # make sure npm packages are installed
     npm install
     # run tests
     npm test
 
     cd ..
+fi
+
+commands=(tests clean)
+if [[ ${commands[*]} =~ "$command" ]]; then
     # shut down all proxy containers
     for proxy_dir in hosts/proxy/*; do
         [ -d "${proxy_dir}" ] || continue # if not a directory, skip
