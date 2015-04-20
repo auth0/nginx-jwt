@@ -23,16 +23,13 @@ if [[ ${commands[*]} =~ "$command" ]]; then
     sh scripts/build_deps.sh
 fi
 
-commands=(run tests)
-if [[ ${commands[*]} =~ "$command" ]]; then
+if [[ "$command" == "run" ]]; then
     # run backend container
     sh scripts/run_backend.sh
 
     # build proxy base image
     sh scripts/build_proxy_base_image.sh
-fi
 
-if [[ "$command" == "run" ]]; then
     # run default proxy container
     sh scripts/run_proxy_container.sh default
 
@@ -42,15 +39,6 @@ if [[ "$command" == "run" ]]; then
 fi
 
 if [[ "$command" == "tests" ]]; then
-    # run all proxy containers
-    for proxy_dir in hosts/proxy/*; do
-        [ -d "${proxy_dir}" ] || continue # if not a directory, skip
-
-        proxy_name="$(basename $proxy_dir)"
-
-        sh scripts/run_proxy_container.sh $proxy_name
-    done
-
     echo "${cyan}Running integration tests:${no_color}"
     cd test
 
@@ -62,8 +50,7 @@ if [[ "$command" == "tests" ]]; then
     cd ..
 fi
 
-commands=(tests clean)
-if [[ ${commands[*]} =~ "$command" ]]; then
+if [[ "$command" == "clean" ]]; then
     # shut down all proxy containers
     for proxy_dir in hosts/proxy/*; do
         [ -d "${proxy_dir}" ] || continue # if not a directory, skip
