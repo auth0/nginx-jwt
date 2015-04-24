@@ -194,7 +194,7 @@ This script is similar to `run` except it executes all the [integration tests](t
 ./build tests
 ```
 
-Use this script to while developing new features.
+Use this script while developing new features.
 
 ### Clean everything up
 
