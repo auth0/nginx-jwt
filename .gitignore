@@ -41,3 +41,4 @@ luac.out
 
 # Other
 *.lua.swp
+lib/
