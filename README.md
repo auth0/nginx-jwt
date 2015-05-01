@@ -61,11 +61,52 @@ Install steps:
 
 ### auth
 
-`syntax: auth()`
+Syntax: `auth([claim_specs])`
 
 Authenticates the current request, requiring a JWT bearer token in the `Authorization` request header.  Verification uses the value set in the `JWT_SECRET` (and optionally `JWT_SECRET_IS_BASE64_ENCODED`) environment variables.
 
-This function should be called within the [access_by_lua](https://github.com/openresty/lua-nginx-module#access_by_lua) or [access_by_lua_file](https://github.com/openresty/lua-nginx-module#access_by_lua_file) directive so that it can occur before the Nginx **content** [phase](http://wiki.nginx.org/Phases).
+If authentication succeeds, then by default the current request is authorized by virtue of a valid user identity.  More specific authorization can be accomplished via the optional `claim_specs` parameter.  If provided, it must be a Lua [Table](http://www.lua.org/pil/2.5.html) where each key is the name of a desired claim and each value is a [pattern](http://www.lua.org/pil/20.2.html) that can be used to test the actual value of the claim.  If your claim value is more complex that what a pattern can handle, you can pass an anonymous function instead that has the signature `function (val)` and returns a truthy value (or just `true`) if `val` is a match.  You can also use the [`table_contains`](#table_contains) helper function to easily check for an existing value in an array table.
+
+For example if we wanted to ensure that the JWT had an `aud` (Audience) claim value that started with `foo:` and a `roles` claim that contained a `marketing` role, then the `claim_specs` parameter might look like this:
+
+```lua
+# nginx.conf:
+
+server {
+    location /secure {
+        access_by_lua '
+            local jwt = require("nginx-jwt")
+            jwt.auth({
+                aud="^foo:",
+                role=function (val) return jwt.table_contains(val, "marketing") end
+            })
+        ';
+
+        proxy_pass http://my-backend.com$uri;
+    }
+}
+```
+and if our JWT's payload of claims looked something like this, the above `auth()` call would succeed:
+
+```json
+{
+    "aud": "foo:user",
+    "roles": [ "sales", "marketing" ]
+}
+```
+
+**NOTE:** the **auth** function should be called within the [access_by_lua](https://github.com/openresty/lua-nginx-module#access_by_lua) or [access_by_lua_file](https://github.com/openresty/lua-nginx-module#access_by_lua_file) directive so that it can occur before the Nginx **content** [phase](http://wiki.nginx.org/Phases).
+
+### table_contains
+
+Syntax: `table_contains(table, item)`
+
+A helper function that checks to see if `table` (a Lua [Table](http://www.lua.org/pil/2.5.html)) contains the specified `item`.  If it does, the function returns `true`; otherwise `false`.  This is particularly helpful for checking for a value in an array:
+
+```lua
+array = { "foo", "bar" }
+table_contains(array, "foo") --> true
+```
 
 ## Overview
 
