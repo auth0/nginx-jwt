@@ -1,0 +1,39 @@
+#!/usr/bin/env node
+
+'use strict';
+
+var jwt = require('jsonwebtoken');
+
+function usage() {
+	console.log('usage: sign PAYLOAD_JSON SECRET');
+}
+
+var payload = process.argv[2];
+if (!payload) {
+	console.error('Missing: payload argument');
+	usage();
+	process.exit(1);
+	return;
+}
+try {
+	payload = JSON.parse(payload);
+}
+catch (err) {
+	console.error('Payload must be in JSON format');
+	usage();
+	process.exit(1);
+	return;
+}
+console.log('Payload:', payload);
+
+var secret = process.argv[3];
+if (!secret) {
+	console.error('Missing: secret argument');
+	usage();
+	process.exit(1);
+	return;
+}
+console.log('Secret:', secret);
+
+var token = jwt.sign(payload, secret);
+console.log('Token:', token);

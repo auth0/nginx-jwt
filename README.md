@@ -178,7 +178,93 @@ If you just want to see the **nginx-jwt** script in action, you can run the [`ba
 ./build run
 ```
 
-You can then run [cURL](http://curl.haxx.se/) commands against the endpoints exposed by the backend through Nginx.  The root URL of the proxy is reported back by the script and the available endpoints can be seen in the default proxy's [`nginx.conf`](hosts/proxy/default/nginx/conf/nginx.conf) file.
+You can then run [cURL](http://curl.haxx.se/) commands against the endpoints exposed by the backend through Nginx.  The root URL of the proxy is reported back by the script when it is finished.  It will look something like this:
+
+```
+...
+Proxy:
+curl http://192.168.59.103
+```
+
+Notice the proxy container (which is running in the `boot2docker` VM) is listening on port 80.  The actual backend container is not directly accessible at.  All calls are configured to reverse-proxy through the Nginx host and the connection between the two is done via [docker container linking](https://docs.docker.com/userguide/dockerlinks/).
+
+If you issue the above cURL command, you'll hit the [proxy's root (`/`) endpoint](hosts/proxy/default/nginx/conf/nginx.conf#L14), which simply reverse proxies to the [non-secure backend endpoint](hosts/backend/server.js#L7), which doesn't require any authentication:
+
+```bash
+curl -i http://192.168.59.103
+```
+
+```
+HTTP/1.1 200 OK
+Server: openresty/1.7.7.1
+Date: Sun, 03 May 2015 18:05:10 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 16
+Connection: keep-alive
+X-Powered-By: Express
+ETag: W/"10-574c3064"
+
+Backend API root
+```
+
+However, if you attempt to cURL the [proxy's `/secure` endpoint](hosts/proxy/default/nginx/conf/nginx.conf#L18), you're going to get a `401` response from Nginx since it requires a valid JWT:
+
+```bash
+curl -i http://192.168.59.103/secure
+```
+
+```
+HTTP/1.1 401 Unauthorized
+Server: openresty/1.7.7.1
+Date: Sun, 03 May 2015 18:05:00 GMT
+Content-Type: text/html
+Content-Length: 200
+Connection: keep-alive
+
+<html>
+<head><title>401 Authorization Required</title></head>
+<body bgcolor="white">
+<center><h1>401 Authorization Required</h1></center>
+<hr><center>openresty/1.7.7.1</center>
+</body>
+</html>
+```
+
+To create a valid JWT, we've included a handy tool that will generate one given a payload and a secret.  The payload must be in JSON format and at a minimum should contain a `sub` (subject) element.  The following command will generate a JWT with an arbitrary payload and the specific secret used by the proxy:
+
+```bash
+test/sign '{"sub": "flynn"}' 'JWTs are the best!'
+```
+
+```
+Payload: { sub: 'flynn' }
+Secret: JWTs are the best!
+Token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwZXRlIiwiaWF0IjoxNDMwNjc3NjYzfQ.Zt4qnQyljbqLvAN7BQSuu14z5PjKcPpZZY85hDFVN3E
+```
+
+You can then use the above `Token` (the JWT) and call the proxy's `/secure` endpoint again:
+
+```bash
+curl -i http://192.168.59.103/secure -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwZXRlIiwiaWF0IjoxNDMwNjc3NjYzfQ.Zt4qnQyljbqLvAN7BQSuu14z5PjKcPpZZY85hDFVN3E'
+```
+
+```
+HTTP/1.1 200 OK
+Server: openresty/1.7.7.1
+Date: Sun, 03 May 2015 18:34:18 GMT
+Content-Type: application/json; charset=utf-8
+Content-Length: 47
+Connection: keep-alive
+X-Auth-UserId: flynn
+X-Powered-By: Express
+ETag: W/"2f-8fc49de2"
+
+{"message":"This endpoint needs to be secure."}
+```
+
+In this case the Nginx proxy has authorized the caller and performed a reverse proxy to the [backend's `/secure` endpoint](hosts/backend/server.js#L11).  Notice too that the **nginx-jwt** script has tacked on an extra response header called `X-Auth-UserId` that contains the value passed in the JWT payload's subject.  This is just for convenience, but it does help verify that the server does indeed know who you are.
+
+The proxy exposes other endpoints, which have different JWT requirements.  To see them all, take a look at the default proxy's [`nginx.conf`](hosts/proxy/default/nginx/conf/nginx.conf) file.
 
 If you want to run the script with one of the [other proxy containers](hosts/proxy), simply pass the name of the desired container.  Example:
 
