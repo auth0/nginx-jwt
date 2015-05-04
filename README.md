@@ -165,7 +165,8 @@ This repo contains everything you need to do just that.  It's set up to run Ngin
 
 ### Prerequisites (Mac OS)
 
-1. [boot2docker](http://boot2docker.io/)
+1. [boot2docker](http://boot2docker.io/)  
+    **NOTE**: if you want to install `boot2docker` using [Homebrew](http://brew.sh/), checkout [these instructions](http://blog.javabien.net/2014/03/03/setup-docker-on-osx-the-no-brainer-way/)
 1. [Node.js](https://nodejs.org/)
 
 **NOTE**: On the first run, the following scripts may take a few minutes to download all the base Docker images, so go grab a fresh cup of coffee.  Successive runs are much faster.
