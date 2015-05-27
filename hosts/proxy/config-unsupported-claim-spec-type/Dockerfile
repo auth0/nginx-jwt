@@ -1,4 +1,4 @@
-FROM ficusio/openresty:1.7.7.1
+FROM proxy-base-image
 
 ENV JWT_SECRET="JWTs are the best!"
 

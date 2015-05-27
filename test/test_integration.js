@@ -1,4 +1,4 @@
-/* global describe, it, before */
+/* global describe, it, before, after */
 
 'use strict';
 
@@ -6,15 +6,61 @@ var cp = require('child_process');
 var request = require('super-request');
 var jwt = require('jsonwebtoken');
 var expect = require('chai').expect;
+var exec = require('child_process').exec;
 
-var baseUrl = 'http://' + process.env.HOST_IP;
-var url, secret;
+var url = 'http://' + process.env.HOST_IP;
+var secret, proxyName;
+
+function runCommand (command, done) {
+    exec(command, function (err) {
+        if (err) { return done(err); }
+
+        // add a small delay so port bindings are ready
+        setTimeout(done, 100);
+    });
+}
+
+function runProxyContainer (name, done) {
+    console.log('      > Building and starting proxy container: ' + name);
+
+    var command = 'cd ..; sh scripts/run_proxy_container.sh ' + name;
+    runCommand(command, done);
+}
+
+function stopProxyContainer (name, done) {
+    console.log('      > Stopping and deleting proxy container: ' + name);
+
+    var command = 'cd ..; sh scripts/stop_proxy_container.sh ' + name;
+    runCommand(command, done);
+}
 
 describe('proxy', function () {
+    this.timeout(4000);
+
+    before(function (done) {
+        console.log('    > Building and starting backend container');
+
+        var command = 'cd ..; sh scripts/run_backend.sh';
+        runCommand(command, done);
+    });
+
+    after(function (done) {
+        console.log('    > Stopping and deleting backend container');
+
+        var command = 'cd ..; sh scripts/stop_backend.sh';
+        runCommand(command, done);
+    });
+
     describe("configured with normal secret", function () {
-        before(function () {
-            url = baseUrl;
+        before(function (done) {
             secret = 'JWTs are the best!';
+
+            proxyName = 'default';
+            runProxyContainer(proxyName, done);
+        });
+
+        after(function (done) {
+            stopProxyContainer(proxyName, done);
         });
 
         describe("GET /", function () {
@@ -118,9 +164,15 @@ describe('proxy', function () {
     });
 
     describe("configured with URL-safe base-64 encoded secret", function () {
-        before(function () {
-            url = baseUrl + ':81';
+        before(function (done) {
             secret = 'This secret is stored base-64 encoded on the proxy host';
+
+            proxyName = 'base64-secret';
+            runProxyContainer(proxyName, done);
+        });
+
+        after(function (done) {
+            stopProxyContainer(proxyName, done);
         });
 
         describe("GET /secure", function () {
@@ -142,9 +194,15 @@ describe('proxy', function () {
     });
 
     describe("configured with claim_specs param that's not a table", function () {
-        before(function () {
-            url = baseUrl + ':82';
+        before(function (done) {
             secret = 'JWTs are the best!';
+
+            proxyName = 'config-claim_specs-not-table';
+            runProxyContainer(proxyName, done);
+        });
+
+        after(function (done) {
+            stopProxyContainer(proxyName, done);
         });
 
         describe("GET /secure/admin", function () {
@@ -176,9 +234,15 @@ describe('proxy', function () {
     });
 
     describe("configured with claim_specs param that contains a spec that's not a pattern (string) or table", function () {
-        before(function () {
-            url = baseUrl + ':83';
+        before(function (done) {
             secret = 'JWTs are the best!';
+
+            proxyName = 'config-unsupported-claim-spec-type';
+            runProxyContainer(proxyName, done);
+        });
+
+        after(function (done) {
+            stopProxyContainer(proxyName, done);
         });
 
         describe("GET /secure/admin", function () {

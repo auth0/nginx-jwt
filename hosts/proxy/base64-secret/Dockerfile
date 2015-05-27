@@ -1,4 +1,4 @@
-FROM ficusio/openresty:1.7.7.1
+FROM proxy-base-image
 
 # secret is base-64 encoded and URL-safe
 ENV JWT_SECRET="VGhpcyBzZWNyZXQgaXMgc3RvcmVkIGJhc2UtNjQgZW5jb2RlZCBvbiB0aGUgcHJveHkgaG9zdA"
