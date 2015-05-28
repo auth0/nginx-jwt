@@ -49,7 +49,7 @@ Install steps:
 
 ## Usage
 
-Now we can start using the script in reverse-proxy scenarios to secure our backing service.  This is done by using the [access_by_lua](https://github.com/openresty/lua-nginx-module#access_by_lua) directive to call the `nginx-jwt` script's `auth()` function before executing any [proxy_* directives](http://nginx.org/en/docs/http/ngx_http_proxy_module.html):
+Now we can start using the script in reverse-proxy scenarios to secure our backing service.  This is done by using the [access_by_lua](https://github.com/openresty/lua-nginx-module#access_by_lua) directive to call the `nginx-jwt` script's [`auth()`](#auth) function before executing any [proxy_* directives](http://nginx.org/en/docs/http/ngx_http_proxy_module.html):
 
 ```lua
 # nginx.conf:
