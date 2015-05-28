@@ -1,0 +1,10 @@
+{
+  "name": "JWT Auth for Nginx",
+  "type": "sdk",
+  "tags": [
+    "nginx",
+    "openresty",
+    "jwt",
+    "lua"
+  ]
+}
