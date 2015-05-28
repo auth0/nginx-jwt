@@ -25,6 +25,8 @@ Install steps:
 
     This will create a local `lib/` directory that contains all Lua scripts that the **nginx-jwt** depends on.
 
+    **NOTE**: This command should work on Mac OS as well as Ubuntu.
+
 1. Deploy the [`nginx-jwt.lua`](nginx-jwt.lua) script as well as the local `lib/` directory (generated in the previous step) to one directory on your Nginx server.
 1. Specify this directory's path using ngx_lua's [lua_package_path](https://github.com/openresty/lua-nginx-module#lua_package_path) directive:  
     ```lua

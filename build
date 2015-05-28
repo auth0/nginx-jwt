@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -o pipefail
 set -e
@@ -28,7 +28,7 @@ fi
 commands=(run tests deps)
 if [[ ${commands[*]} =~ "$command" ]]; then
     # build Lua script dependencies
-    sh scripts/build_deps.sh
+    bash scripts/build_deps.sh
 fi
 
 if [[ "$command" == "run" ]]; then
