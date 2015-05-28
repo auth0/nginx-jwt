@@ -1,17 +1,14 @@
 # JWT Auth for Nginx
 
-**nginx-jwt** is a [Lua](http://www.lua.org/) script for the [Nginx](http://nginx.org/) server (running the [HttpLuaModule](http://wiki.nginx.org/HttpLuaModule)) that will allow you to use Nginx as a reverse proxy in front of your existing set of HTTP services and secure them (authentication/authorization) using a trusted [JSON Web Token (JWT)](http://jwt.io/) in the `Authorization` request header, making little or no changes to the backing services themselves.
+**nginx-jwt** is a [Lua](http://www.lua.org/) script for the [Nginx](http://nginx.org/) server (running the [HttpLuaModule](http://wiki.nginx.org/HttpLuaModule)) that will allow you to use Nginx as a reverse proxy in front of your existing set of HTTP services and secure them (authentication/authorization) using a trusted [JSON Web Token (JWT)](http://jwt.io/) in the `Authorization` request header, having to make little or no changes to the backing services themselves.
 
-## Table of Contents
+## Key Features
 
-* [Installation](#installation)
-* [API](#api)
-* [Overview](#overview)
-* [Contributing](#contributing)
+* Secure an existing HTTP service (ex: REST API) using Nginx reverse-proxy and this script
+* Authentication of an HTTP request with the verified identity contained with in a JWT
+* Optionally, authorization of the same request by providing helper functions for asserting required JWT claims
 
-**NOTE**: If you want to quickly see this script in action, clone the repo and run the default Docker containers using the [`build` ](#build-and-run-the-default-containers) command  described in the [Contributing](#contributing) section.
-
-## Installation
+## Install
 
 It is recommended to use the latest [ngx_openresty bundle](http://openresty.org/) directly as this script (and its dependencies) depend on components that are installed by **openresty**.
 
@@ -23,7 +20,7 @@ Install steps:
     ./build deps
     ```
 
-    This will create a local `lib/` directory that contains all Lua scripts that the **nginx-jwt** depends on.
+    This will create a local `lib/` directory that contains all Lua scripts that the **nginx-jwt** script depends on.
 
     **NOTE**: This command should work on Mac OS as well as Ubuntu.
 
@@ -49,24 +46,86 @@ Install steps:
 
     env JWT_SECRET_IS_BASE64_ENCODED;
     ```
-1. Use the [access_by_lua](https://github.com/openresty/lua-nginx-module#access_by_lua) directive to call the `nginx-jwt` script's `auth()` function before executing any [proxy_* directives](http://nginx.org/en/docs/http/ngx_http_proxy_module.html):  
-    ```lua
-    # nginx.conf:
 
-    server {
-        location /secure {
-            access_by_lua '
-                local jwt = require("nginx-jwt")
-                jwt.auth()
-            ';
+## Usage
 
-            proxy_pass http://my-backend.com$uri;
-        }
+Now we can start using the script in reverse-proxy scenarios to secure our backing service.  This is done by using the [access_by_lua](https://github.com/openresty/lua-nginx-module#access_by_lua) directive to call the `nginx-jwt` script's `auth()` function before executing any [proxy_* directives](http://nginx.org/en/docs/http/ngx_http_proxy_module.html):
+
+```lua
+# nginx.conf:
+
+server {
+    location /secure_this {
+        access_by_lua '
+            local jwt = require("nginx-jwt")
+            jwt.auth()
+        ';
+
+        proxy_pass http://my-backend.com$uri;
     }
-    ```
+}
+```
 
+If you attempt to cURL the above `/secure_this` endpoint, you're going to get a `401` response from Nginx since it requires a valid JWT to be passed:
 
-## API
+```bash
+curl -i http://your-nginx-server/secure_this
+```
+
+```
+HTTP/1.1 401 Unauthorized
+Server: openresty/1.7.7.1
+Date: Sun, 03 May 2015 18:05:00 GMT
+Content-Type: text/html
+Content-Length: 200
+Connection: keep-alive
+
+<html>
+<head><title>401 Authorization Required</title></head>
+<body bgcolor="white">
+<center><h1>401 Authorization Required</h1></center>
+<hr><center>openresty/1.7.7.1</center>
+</body>
+</html>
+```
+
+To create a valid JWT, we've included a handy tool that will generate one given a payload and a secret.  The payload must be in JSON format and at a minimum should contain a `sub` (subject) element.  The following command will generate a JWT with an arbitrary payload and the specific secret used by the proxy:
+
+```bash
+test/sign '{"sub": "flynn"}' 'My JWT secret'
+```
+
+```
+Payload: { sub: 'flynn' }
+Secret: JWTs are the best!
+Token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwZXRlIiwiaWF0IjoxNDMwNjc3NjYzfQ.Zt4qnQyljbqLvAN7BQSuu14z5PjKcPpZZY85hDFVN3E
+```
+
+You can then use the above `Token` (the JWT) and call the Nginx server's `/secure_this` endpoint again:
+
+```bash
+curl -i http://your-nginx-server/secure_this -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwZXRlIiwiaWF0IjoxNDMwNjc3NjYzfQ.Zt4qnQyljbqLvAN7BQSuu14z5PjKcPpZZY85hDFVN3E'
+```
+
+```
+HTTP/1.1 200 OK
+Server: openresty/1.7.7.1
+Date: Sun, 03 May 2015 18:34:18 GMT
+Content-Type: text/plain
+Content-Length: 47
+Connection: keep-alive
+X-Auth-UserId: flynn
+X-Powered-By: Express
+ETag: W/"2f-8fc49de2"
+
+The reverse-proxied response!
+```
+
+In this case the Nginx server has authorized the caller and performed a reverse proxy call to the backing service's endpoint.  Notice too that the **nginx-jwt** script has tacked on an extra response header called `X-Auth-UserId` that contains the value passed in the JWT payload's subject.  This is just for convenience, but it does help verify that the server does indeed know who you are.
+
+The `jwt.auth()` function used above can actually do a lot more. See the [API Reference](#api-reference) section for more details.
+
+## API Reference
 
 ### auth
 
@@ -117,49 +176,7 @@ array = { "foo", "bar" }
 table_contains(array, "foo") --> true
 ```
 
-## Overview
-
-Building modern apps is not easy.  Besides delivering the core business need, developers have to worry about things like: user experience, choosing the best platform (native mobile vs. mobile web vs. hybrid), flexible design, and lets not forget about security.  And in today's world of test and learn, all of this has become accelerated.
-
-### Challenges with an Existing Backend
-
-And then there's the backend.  Most useful apps are transacting important data or delivering useful content.  And its not uncommon that at least a portion of that data is being sourced from an existing or legacy system.  In this scenario, one of the biggest challenges is security, and more specifically: *managing user identities*.  If your backend provides content that users need to pay for, you need a way to identify that user and ensure they are authorized to consume the content.  Maybe you need to store user information in your legacy CRM system and would like users to be able to log in with their Google or Facebook account.
-
-As you can imagine presenting identity management requirements like this to your existing backend system can result in several challenges:
-
-* Your backend may not have been designed to easily incorporate a new security layer and making this change could potentially destabilize it for other existing consuming apps and services
-* Your backend codebase is maintained by another team and they told you it would take 6 months to make this kind of change, given their other priorities
-* Your backend is a 3rd-party service and has an even more inflexible infrastructure
-
-### The Nginx Solution
-
-Situations like the above are common, which is why many people turn to a product like **Nginx** as a [reverse proxy](http://en.wikipedia.org/wiki/Reverse_proxy) service, placing it in front of the various backend services required by their app.  Nginx allows a host of reverse proxy capabilities, such as caching, adding SSL, and redirecting.  Now with the **nginx-jwt** script, you can easily enforce token-based authentication and authorization, simply by having your client app obtain a trusted JWT, which identifies a user (authentication) and optionally their security rights (authorization).
-
-> For more information on how JWT's work take a look at the [IEFT draft spec](http://tools.ietf.org/html/draft-ietf-oauth-json-web-token) or play around with them on [jwt.io](http://jwt.io).
-
-
-### The Client Side
-
-So how does all this work?  The first step is to enable your client app so that it can obtain a valid JWT on behalf of the user.  The generation of this token has to be done external to the app itself by an authentication service that has the ability to identify a user (usually using a login form) and then geneate and *sign* a JWT with the same secret that your **nginx-jwt** script will use to *verify* that JWT.
-
-> An example of an authentication service that can generate trusted JWT's is [Auth0](http://auth0.com).  While they can host your app's user database, they also allow your users to authenticate against a variety of social providers like Google and Facebook or even against your enterprise's Active Directory or LDAP service.  They also make it easy to integrate the login view into your app with a variety of [UI widgets and client libraries]((https://auth0.com/docs).
-
-Once the authentication service has been used by the app to login the user and obtain a valid JWT, the app is free to call the backend by passing the JWT as a bearer token via the `Authorization` request header:
-
-```
-GET https://my-backend.com/secured/resource
-Authorization Bearer YOUR_USERS_JWT_HERE
-```
-
-### The Server Side
-
-The Nginx server, with the help of the **nginx-jwt** script can now sit in front of your backend services (as a reverse proxy) and through configuration can secure whatever endpoints you desire.  In the example above, the `my-backend.com` host actually resolves to your Nginx server, not your actual backend.  If the `/secured/resource` endpoint was configured to be secured with the script, it would enforce that a valid JWT was sent with each request.  Without it, the script will return an HTTP `401 Unauthorized`.  With it, the request will continue to be proxied to the actual backend endpoint.
-
-### Authorization
-
-In the above scenario, the user has been authenticated (identified) and they are then authorized to access the `/secured/resource` endpoint simply because they are a valid user.  However, often times your endpoint requires that a user also be in a specific security role or have certain security rights.  The **nginx-jwt** script can be configured to enforce this by requiring the existence of a specific claim.  Claims are just data in the JWT payload and since the JWT is created and signed by the authentication service, they can be trusted.
-
-## Contributing
+## Tests
 
 The best way to develop and test the **nginx-jwt** script is to run it in a virtualized development environment.  This allows you to run Ngnix separate from your host machine (i.e. your Mac) in a controlled execution environment.  It also allows you to easily test the script with any combination of Nginx proxy host configurations and backing services that Nginx will reverse proxy to.
 
@@ -179,9 +196,9 @@ If you just want to see the **nginx-jwt** script in action, you can run the [`ba
 ./build run
 ```
 
-**NOTE**: On the first run, the above script may take a few minutes to download all the base Docker images, so go grab a fresh cup of coffee.  Successive runs are much faster.
+**NOTE**: On the first run, the above script may take several minutes to download all the base Docker images, so go grab a fresh cup of coffee.  Successive runs are much faster.
 
-You can then run [cURL](http://curl.haxx.se/) commands against the endpoints exposed by the backend through Nginx.  The root URL of the proxy is reported back by the script when it is finished.  It will look something like this:
+You can then run cURL commands against the endpoints exposed by the backend through Nginx.  The root URL of the proxy is reported back by the script when it is finished.  It will look something like this:
 
 ```
 ...
@@ -233,7 +250,7 @@ Connection: keep-alive
 </html>
 ```
 
-To create a valid JWT, we've included a handy tool that will generate one given a payload and a secret.  The payload must be in JSON format and at a minimum should contain a `sub` (subject) element.  The following command will generate a JWT with an arbitrary payload and the specific secret used by the proxy:
+Just like we showed in the [Usage](#usage) section, we can use the included `sign` tool to generate a JWT and call the Nginx proxy again, this time with a `200` response:
 
 ```bash
 test/sign '{"sub": "flynn"}' 'JWTs are the best!'
@@ -244,8 +261,6 @@ Payload: { sub: 'flynn' }
 Secret: JWTs are the best!
 Token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwZXRlIiwiaWF0IjoxNDMwNjc3NjYzfQ.Zt4qnQyljbqLvAN7BQSuu14z5PjKcPpZZY85hDFVN3E
 ```
-
-You can then use the above `Token` (the JWT) and call the proxy's `/secure` endpoint again:
 
 ```bash
 curl -i http://192.168.59.103/secure -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwZXRlIiwiaWF0IjoxNDMwNjc3NjYzfQ.Zt4qnQyljbqLvAN7BQSuu14z5PjKcPpZZY85hDFVN3E'
@@ -264,8 +279,6 @@ ETag: W/"2f-8fc49de2"
 
 {"message":"This endpoint needs to be secure."}
 ```
-
-In this case the Nginx proxy has authorized the caller and performed a reverse proxy to the [backend's `/secure` endpoint](hosts/backend/server.js#L11).  Notice too that the **nginx-jwt** script has tacked on an extra response header called `X-Auth-UserId` that contains the value passed in the JWT payload's subject.  This is just for convenience, but it does help verify that the server does indeed know who you are.
 
 The proxy exposes other endpoints, which have different JWT requirements.  To see them all, take a look at the default proxy's [`nginx.conf`](hosts/proxy/default/nginx/conf/nginx.conf) file.
 
