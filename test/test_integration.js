@@ -23,14 +23,14 @@ function runCommand (command, done) {
 function runProxyContainer (name, done) {
     console.log('      > Building and starting proxy container: ' + name);
 
-    var command = 'cd ..; sh scripts/run_proxy_container.sh ' + name;
+    var command = 'cd ..; ./scripts/run_proxy_container.sh ' + name;
     runCommand(command, done);
 }
 
 function stopProxyContainer (name, done) {
     console.log('      > Stopping and deleting proxy container: ' + name);
 
-    var command = 'cd ..; sh scripts/stop_proxy_container.sh ' + name;
+    var command = 'cd ..; ./scripts/stop_proxy_container.sh ' + name;
     runCommand(command, done);
 }
 
@@ -40,14 +40,14 @@ describe('proxy', function () {
     before(function (done) {
         console.log('    > Building and starting backend container');
 
-        var command = 'cd ..; sh scripts/run_backend.sh';
+        var command = 'cd ..; ./scripts/run_backend.sh';
         runCommand(command, done);
     });
 
     after(function (done) {
         console.log('    > Stopping and deleting backend container');
 
-        var command = 'cd ..; sh scripts/stop_backend.sh';
+        var command = 'cd ..; ./scripts/stop_backend.sh';
         runCommand(command, done);
     });
 

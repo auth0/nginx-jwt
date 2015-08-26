@@ -7,7 +7,7 @@ script_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 . $script_dir/common.sh
 
 echo "${cyan}Fetching Lua depedencies...${no_color}"
-function load_dependency {
+load_dependency () {
     local target="$1"
     local user="$2"
     local repo="$3"

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -o pipefail
 set -e
@@ -10,7 +10,7 @@ proxy_name=$1
 proxy_dir=$proxy_base_dir/$proxy_name
 
 # make sure existing image/container is stopped/deleted
-sh $script_dir/stop_proxy_container.sh $proxy_name
+$script_dir/stop_proxy_container.sh $proxy_name
 
 echo "${cyan}Building container and image for the '$proxy_name' proxy (Nginx) host...${no_color}"
 

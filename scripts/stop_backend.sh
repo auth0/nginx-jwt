@@ -1,7 +1,10 @@
-#!/bin/sh
+#!/bin/bash
+
+ps -ef >/tmp/bash_stack_trace.$$
 
 set -o pipefail
 set -e
+
 
 script_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 . $script_dir/common.sh

@@ -28,22 +28,22 @@ fi
 commands=(run tests deps)
 if [[ ${commands[*]} =~ "$command" ]]; then
     # build Lua script dependencies
-    bash scripts/build_deps.sh
+    ./scripts/build_deps.sh
 fi
 
 if [[ "$command" == "run" ]]; then
     # run backend container
-    sh scripts/run_backend.sh
+    ./scripts/run_backend.sh
 
     # build proxy base image
-    sh scripts/build_proxy_base_image.sh
+    ./scripts/build_proxy_base_image.sh
 
     # run specified proxy container
-    sh scripts/run_proxy_container.sh $run_proxy_name
+    ./scripts/run_proxy_container.sh $run_proxy_name
 
     # report URL to proxy container
     echo "${cyan}Proxy:${no_color}"
-    echo curl http://$(boot2docker ip)
+    echo curl http://$(boot2docker ip || echo localhost)
 fi
 
 if [[ "$command" == "tests" ]]; then
@@ -65,9 +65,9 @@ if [[ "$command" == "clean" ]]; then
 
         proxy_name="$(basename $proxy_dir)"
 
-        sh scripts/stop_proxy_container.sh $proxy_name
+        ./scripts/stop_proxy_container.sh $proxy_name
     done
 
     # shut down backend container
-    sh scripts/stop_backend.sh
+    ./scripts/stop_backend.sh
 fi
