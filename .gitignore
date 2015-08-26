@@ -39,6 +39,9 @@ luac.out
 *.x86_64
 *.hex
 
+# npm
+npm-debug.log
+
 # Other
 *.lua.swp
 lib/
