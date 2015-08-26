@@ -1,7 +1,5 @@
 #!/bin/bash
 
-ps -ef >/tmp/bash_stack_trace.$$
-
 set -o pipefail
 set -e
 
