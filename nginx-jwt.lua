@@ -116,7 +116,7 @@ function M.auth(claim_specs)
 end
 
 function M.table_contains(table, item)
-    for key, value in pairs(table) do
+    for _, value in pairs(table) do
         if value == item then return true end
     end
     return false
