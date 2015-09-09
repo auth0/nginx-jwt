@@ -10,17 +10,17 @@ command=$1
 # ensure a supported command
 commands=(run tests deps clean)
 if [[ ! ${commands[*]} =~ "$command" ]]; then
-    echo "${cyan}Unsupported command. Try:${no_color}"
-    echo "run [NAME]: build and run backend and the specified proxy container and report back the proxy's URL"
-    echo "tests: run the integration tests, building and running all necessary containers"
-    echo "deps: build only Lua script dependencies"
-    echo "clean: stop/delete all running containers and remove all images"
+    echo -e "${cyan}Unsupported command. Try:${no_color}"
+    echo -e "run [NAME]: build and run backend and the specified proxy container and report back the proxy's URL"
+    echo -e "tests: run the integration tests, building and running all necessary containers"
+    echo -e "deps: build only Lua script dependencies"
+    echo -e "clean: stop/delete all running containers and remove all images"
 fi
 
 if [[ "$command" == "run" ]]; then
     run_proxy_name=${2:-default}
     if [[ ! -d "hosts/proxy/${run_proxy_name}" ]]; then
-        echo "Not a valid proxy container to run: $run_proxy_name"
+        echo -e "Not a valid proxy container to run: $run_proxy_name"
         exit 1
     fi
 fi
@@ -42,12 +42,17 @@ if [[ "$command" == "run" ]]; then
     ./scripts/run_proxy_container.sh $run_proxy_name
 
     # report URL to proxy container
-    echo "${cyan}Proxy:${no_color}"
-    echo curl http://$(boot2docker ip || echo localhost)
+    echo -e "${cyan}Proxy:${no_color}"
+    if type "boot2docker" > /dev/null; then
+      proxy_ip=$(boot2docker ip)
+    else
+      proxy_ip='localhost'
+    fi
+    echo -e curl http://$proxy_ip
 fi
 
 if [[ "$command" == "tests" ]]; then
-    echo "${cyan}Running integration tests:${no_color}"
+    echo -e "${cyan}Running integration tests:${no_color}"
     cd test
 
     # make sure npm packages are installed

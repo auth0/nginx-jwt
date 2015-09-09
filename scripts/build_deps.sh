@@ -6,7 +6,7 @@ set -e
 script_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 . $script_dir/common.sh
 
-echo "${cyan}Fetching Lua depedencies...${no_color}"
+echo -e "${cyan}Fetching Lua depedencies...${no_color}"
 load_dependency () {
     local target="$1"
     local user="$2"
@@ -14,7 +14,7 @@ load_dependency () {
     local commit="$4"
 
     if [ -e "$target" ]; then
-        echo "Dependency $target already downloaded."
+        echo -e "Dependency $target already downloaded."
     else
         curl https://codeload.github.com/$user/$repo/tar.gz/$commit | tar -xz --strip 1 $repo-$commit/lib
     fi
