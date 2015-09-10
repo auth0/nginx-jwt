@@ -35,7 +35,7 @@ function stopProxyContainer (name, done) {
 }
 
 describe('proxy', function () {
-    this.timeout(4000);
+    this.timeout(15000);
 
     before(function (done) {
         console.log('    > Building and starting backend container');

@@ -43,8 +43,8 @@ if [[ "$command" == "run" ]]; then
 
     # report URL to proxy container
     echo -e "${cyan}Proxy:${no_color}"
-    if type "boot2docker" > /dev/null; then
-      proxy_ip=$(boot2docker ip)
+    if type "docker-machine" > /dev/null; then
+      proxy_ip=$(docker-machine ip default)
     else
       proxy_ip='localhost'
     fi
