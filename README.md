@@ -184,8 +184,10 @@ This repo contains everything you need to do just that.  It's set up to run Ngin
 
 ### Prerequisites (Mac OS)
 
-1. [Docker Toolbox](https://www.docker.com/toolbox)  
+1. [Docker Toolbox](https://www.docker.com/toolbox)
 1. [Node.js](https://nodejs.org/)
+
+> **IMPORTANT**: The test scripts expect your **Docker Toolbox** `docker-machine` VM name is `default`
 
 ### Build and run the default containers
 
