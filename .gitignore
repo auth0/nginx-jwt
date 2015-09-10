@@ -42,6 +42,9 @@ luac.out
 # npm
 npm-debug.log
 
+# Vagrant
+.vagrant/
+
 # Other
 *.lua.swp
 lib/
