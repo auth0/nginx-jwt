@@ -184,8 +184,7 @@ This repo contains everything you need to do just that.  It's set up to run Ngin
 
 ### Prerequisites (Mac OS)
 
-1. [boot2docker](http://boot2docker.io/)  
-    **NOTE**: if you want to install `boot2docker` using [Homebrew](http://brew.sh/), checkout [these instructions](http://blog.javabien.net/2014/03/03/setup-docker-on-osx-the-no-brainer-way/)
+1. [Docker Toolbox](https://www.docker.com/toolbox)  
 1. [Node.js](https://nodejs.org/)
 
 ### Build and run the default containers
@@ -196,7 +195,7 @@ If you just want to see the **nginx-jwt** script in action, you can run the [`ba
 ./build run
 ```
 
-**NOTE**: On the first run, the above script may take several minutes to download all the base Docker images, so go grab a fresh cup of coffee.  Successive runs are much faster.
+**NOTE**: On the first run, the above script may take several minutes to download and build all the base Docker images, so go grab a fresh cup of coffee.  Successive runs are much faster.
 
 You can then run cURL commands against the endpoints exposed by the backend through Nginx.  The root URL of the proxy is reported back by the script when it is finished.  It will look something like this:
 
@@ -206,7 +205,7 @@ Proxy:
 curl http://192.168.59.103
 ```
 
-Notice the proxy container (which is running in the `boot2docker` VM) is listening on port 80.  The actual backend container is not directly accessible via the VM.  All calls are configured to reverse-proxy through the Nginx host and the connection between the two is done via [docker container linking](https://docs.docker.com/userguide/dockerlinks/).
+Notice the proxy container (which is running in the Docker Machine VM) is listening on port 80.  The actual backend container is not directly accessible via the VM.  All calls are configured to reverse-proxy through the Nginx host and the connection between the two is done via [docker container linking](https://docs.docker.com/userguide/dockerlinks/).
 
 If you issue the above cURL command, you'll hit the [proxy's root (`/`) endpoint](hosts/proxy/default/nginx/conf/nginx.conf#L14), which simply reverse-proxies to the [non-secure backend endpoint](hosts/backend/server.js#L7), which doesn't require any authentication:
 

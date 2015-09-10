@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "HOST_IP=$(boot2docker ip) mocha ./test_*.js"
+    "test": "HOST_IP=$(docker-machine ip default) mocha ./test_*.js"
   },
   "dependencies": {
     "chai": "^2.2.0",

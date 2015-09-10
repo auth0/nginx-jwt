@@ -43,7 +43,7 @@ if [[ "$command" == "run" ]]; then
 
     # report URL to proxy container
     echo "${cyan}Proxy:${no_color}"
-    echo curl http://$(boot2docker ip)
+    echo curl http://$(docker-machine ip default)
 fi
 
 if [[ "$command" == "tests" ]]; then
