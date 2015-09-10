@@ -7,6 +7,12 @@ set -e
 
 command=$1
 
+if type "docker-machine" 2>/dev/null; then
+  proxy_host=$(docker-machine ip default)
+else
+  proxy_host='localhost'
+fi
+
 # ensure a supported command
 commands=(run tests deps clean)
 if [[ ! ${commands[*]} =~ "$command" ]]; then
@@ -43,22 +49,17 @@ if [[ "$command" == "run" ]]; then
 
     # report URL to proxy container
     echo -e "${cyan}Proxy:${no_color}"
-    if type "docker-machine" > /dev/null; then
-      proxy_ip=$(docker-machine ip default)
-    else
-      proxy_ip='localhost'
-    fi
-    echo -e curl http://$proxy_ip
+    echo -e curl http://$proxy_host
 fi
 
 if [[ "$command" == "tests" ]]; then
-    echo -e "${cyan}Running integration tests:${no_color}"
+    echo -e "${cyan}Running integration tests against proxy host:${no_color} $proxy_host"
     cd test
 
     # make sure npm packages are installed
     npm install
     # run tests
-    npm test
+    PROXY_HOST=$proxy_host npm test
 
     cd ..
 fi

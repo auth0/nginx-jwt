@@ -8,7 +8,8 @@ var jwt = require('jsonwebtoken');
 var expect = require('chai').expect;
 var exec = require('child_process').exec;
 
-var url = 'http://' + process.env.HOST_IP;
+var url = 'http://' + process.env.PROXY_HOST;
+
 var secret, proxyName;
 
 function runCommand (command, done) {
