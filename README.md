@@ -351,6 +351,32 @@ If you need to simply stop/delete all running Docker containers and remove their
 ./build clean
 ```
 
+### Updating dependencies
+
+It's always nice to keep dependencies up to date. This library (and the tools used to test it) has three sources of dependencies that should be maintained: Lua dependencies, test script Node.js dependencies, and updates to the proxy base Docker image.
+
+#### Lua dependencies
+
+These are the Lua scripts that [this library](nginx-jwt.lua) uses.  They are maintained in the [`build_deps.sh`](scripts/build_deps.sh) bash script.
+
+Since these dependencies don't have any built-in versioning (like npm), we download a specific GitHub commit instead. We also check that a previously downloaded script is current by examining its SHA-1 digest hash. All this is done via the included  `load_dependency` bash function.
+
+If a Lua dependency needs to be updated, find its associated `load_dependency` function call and update its GitHub `commit` and `sha1` parameter values. You can generate the required SHA-1 digest of a new script file using this command:
+
+```bash
+openssh sha1 NEW_SCRIPT
+```
+
+To add a new dependency simply add a new `load_dependency` command to the script.
+
+#### Test script Node.js dependencies
+
+All Node.js dependencies (npm packages) for tests are maintained in this [`package.json`](test/package.json) file and should be updated as needed using the `npm` command.
+
+#### Proxy base Docker image
+
+The proxy base Docker image may need to be updated periodically, usually to just rev the version of OpenResty that its using. This can be done by modifying the image's [`Dockerfile`](hosts/proxy/Dockerfile). Any change to this file will automatically result in new image builds when the `build` script is run.
+
 ## Issue Reporting
 
 If you have found a bug or if you have a feature request, please report them at this repository issues section. Please do not report security vulnerabilities on the public GitHub issue tracker. The [Responsible Disclosure Program](https://auth0.com/whitehat) details the procedure for disclosing security issues.

@@ -6,9 +6,9 @@
     "test": "mocha ./test_*.js"
   },
   "dependencies": {
-    "chai": "^2.2.0",
-    "jsonwebtoken": "^4.2.2",
-    "mocha": "^2.2.1",
-    "super-request": "0.0.8"
+    "chai": "^3.2.0",
+    "jsonwebtoken": "^5.0.5",
+    "mocha": "^2.3.2",
+    "super-request": "^0.1.0"
   }
 }
