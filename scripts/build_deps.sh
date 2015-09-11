@@ -20,6 +20,6 @@ load_dependency () {
     fi
 }
 
-load_dependency "lib/resty/jwt.lua" "SkyLothar" "lua-resty-jwt" "586a507f9e57555bdd7a7bc152303c91b4a04527"
+load_dependency "lib/resty/jwt.lua" "SkyLothar" "lua-resty-jwt" "b7976481061239ae2027e02be552b900bf25321c"
 load_dependency "lib/resty/hmac.lua" "jkeys089" "lua-resty-hmac" "67bff3fd6b7ce4f898b4c3deec7a1f6050ff9fc9"
-load_dependency "lib/basexx.lua" "aiq" "basexx" "c91cf5438385d9f84f53d3ef27f855c52ec2ed76"
+load_dependency "lib/basexx.lua" "aiq" "basexx" "514f46ceb9a8a867135856abf60aaacfd921d9b9"
