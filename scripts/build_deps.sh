@@ -12,13 +12,12 @@ load_dependency () {
     local user="$2"
     local repo="$3"
     local commit="$4"
-    local sha1="$5"
+    local required_sha1="$5"
 
-    local expected_sha1_response="SHA1($target)= $sha1"
-    local actual_sha1_response=$(openssl sha1 $target)
+    local actual_sha1=$(cat $target | openssl sha1)
 
-    if [ -e "$target" ] && [ "$expected_sha1_response" == "$actual_sha1_response" ]; then
-        echo -e "Dependency $target (with SHA-1 digest $sha1) already downloaded."
+    if [ -e "$target" ] && [ "$required_sha1" == "$actual_sha1" ]; then
+        echo -e "Dependency $target (with SHA-1 digest $required_sha1) already downloaded."
     else
         curl https://codeload.github.com/$user/$repo/tar.gz/$commit | tar -xz --strip 1 $repo-$commit/lib
     fi
