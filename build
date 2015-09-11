@@ -7,20 +7,26 @@ set -e
 
 command=$1
 
+if type "docker-machine" 2>/dev/null; then
+  proxy_host=$(docker-machine ip default)
+else
+  proxy_host='localhost'
+fi
+
 # ensure a supported command
 commands=(run tests deps clean)
 if [[ ! ${commands[*]} =~ "$command" ]]; then
-    echo "${cyan}Unsupported command. Try:${no_color}"
-    echo "run [NAME]: build and run backend and the specified proxy container and report back the proxy's URL"
-    echo "tests: run the integration tests, building and running all necessary containers"
-    echo "deps: build only Lua script dependencies"
-    echo "clean: stop/delete all running containers and remove all images"
+    echo -e "${cyan}Unsupported command. Try:${no_color}"
+    echo -e "run [NAME]: build and run backend and the specified proxy container and report back the proxy's URL"
+    echo -e "tests: run the integration tests, building and running all necessary containers"
+    echo -e "deps: build only Lua script dependencies"
+    echo -e "clean: stop/delete all running containers and remove all images"
 fi
 
 if [[ "$command" == "run" ]]; then
     run_proxy_name=${2:-default}
     if [[ ! -d "hosts/proxy/${run_proxy_name}" ]]; then
-        echo "Not a valid proxy container to run: $run_proxy_name"
+        echo -e "Not a valid proxy container to run: $run_proxy_name"
         exit 1
     fi
 fi
@@ -28,32 +34,32 @@ fi
 commands=(run tests deps)
 if [[ ${commands[*]} =~ "$command" ]]; then
     # build Lua script dependencies
-    bash scripts/build_deps.sh
+    ./scripts/build_deps.sh
 fi
 
 if [[ "$command" == "run" ]]; then
     # run backend container
-    sh scripts/run_backend.sh
+    ./scripts/run_backend.sh
 
     # build proxy base image
-    sh scripts/build_proxy_base_image.sh
+    ./scripts/build_proxy_base_image.sh
 
     # run specified proxy container
-    sh scripts/run_proxy_container.sh $run_proxy_name
+    ./scripts/run_proxy_container.sh $run_proxy_name
 
     # report URL to proxy container
-    echo "${cyan}Proxy:${no_color}"
-    echo curl http://$(docker-machine ip default)
+    echo -e "${cyan}Proxy:${no_color}"
+    echo -e curl http://$proxy_host
 fi
 
 if [[ "$command" == "tests" ]]; then
-    echo "${cyan}Running integration tests:${no_color}"
+    echo -e "${cyan}Running integration tests against proxy host:${no_color} $proxy_host"
     cd test
 
     # make sure npm packages are installed
     npm install
     # run tests
-    npm test
+    PROXY_HOST=$proxy_host npm test
 
     cd ..
 fi
@@ -65,9 +71,9 @@ if [[ "$command" == "clean" ]]; then
 
         proxy_name="$(basename $proxy_dir)"
 
-        sh scripts/stop_proxy_container.sh $proxy_name
+        ./scripts/stop_proxy_container.sh $proxy_name
     done
 
     # shut down backend container
-    sh scripts/stop_backend.sh
+    ./scripts/stop_backend.sh
 fi

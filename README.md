@@ -182,12 +182,56 @@ The best way to develop and test the **nginx-jwt** script is to run it in a virt
 
 This repo contains everything you need to do just that.  It's set up to run Nginx as well as a simple backend server in individual [Docker](http://www.docker.com) containers.
 
-### Prerequisites (Mac OS)
+### Prerequisites
+
+#### Mac OS
 
 1. [Docker Toolbox](https://www.docker.com/toolbox)
 1. [Node.js](https://nodejs.org/)
 
-> **IMPORTANT**: The test scripts expect your **Docker Toolbox** `docker-machine` VM name is `default`
+> **IMPORTANT**: The test scripts expect your **Docker Toolbox** `docker-machine` VM name to be `default`
+
+#### Ubuntu
+
+1. [Docker](https://docs.docker.com/installation/ubuntulinux/)
+1. [Node.js](https://nodejs.org/)
+
+Besides being able to install Docker and run Docker directly in the host OS, the other different between Ubuntu (and more specifically Linux) and Mac OS is that all Docker commands need to be called using `sudo`. In the examples that follow, a helper script called `build` is used to perform all Docker commands and should therefore be prefixed with `sudo`, like this:
+
+```bash
+sudo ./build run
+```
+
+#### Ubuntu on MacOS (via Vagrant)
+
+If your host OS is Mac OS but you'd like to test that the build scripts run on Ubuntu, you can use the provided Vagrant scripts to spin up an Ubuntu VM that has all the necessary tools installed.
+
+First, if you haven't already, install **Vagrant** either by [installing the package](http://www.vagrantup.com/downloads.html) or using [Homebrew](http://sourabhbajaj.com/mac-setup/Vagrant/README.html).
+
+Then in the repo directory, start the VM:
+
+```bash
+vagrant up
+```
+
+And then SSH into it:
+
+```bash
+vagrant ssh
+```
+
+Once in, you'll need to use git to clone this repo and `cd` into the project:
+
+```bash
+git clone THIS_REPO_URL
+cd nginx-jwt
+```
+
+All other tools should be installed. And like with the [Ubuntu](#ubuntu) host OS, you'll need to prefix all calls to the `build` script with `sudo`, like this:
+
+```bash
+sudo ./build run
+```
 
 ### Build and run the default containers
 
@@ -197,7 +241,7 @@ If you just want to see the **nginx-jwt** script in action, you can run the [`ba
 ./build run
 ```
 
-**NOTE**: On the first run, the above script may take several minutes to download and build all the base Docker images, so go grab a fresh cup of coffee.  Successive runs are much faster.
+> **NOTE**: On the first run, the above script may take several minutes to download and build all the base Docker images, so go grab a fresh cup of coffee.  Successive runs are much faster.
 
 You can then run cURL commands against the endpoints exposed by the backend through Nginx.  The root URL of the proxy is reported back by the script when it is finished.  It will look something like this:
 

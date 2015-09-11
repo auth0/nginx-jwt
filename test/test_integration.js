@@ -8,7 +8,8 @@ var jwt = require('jsonwebtoken');
 var expect = require('chai').expect;
 var exec = require('child_process').exec;
 
-var url = 'http://' + process.env.HOST_IP;
+var url = 'http://' + process.env.PROXY_HOST;
+
 var secret, proxyName;
 
 function runCommand (command, done) {
@@ -23,31 +24,31 @@ function runCommand (command, done) {
 function runProxyContainer (name, done) {
     console.log('      > Building and starting proxy container: ' + name);
 
-    var command = 'cd ..; sh scripts/run_proxy_container.sh ' + name;
+    var command = 'cd ..; ./scripts/run_proxy_container.sh ' + name;
     runCommand(command, done);
 }
 
 function stopProxyContainer (name, done) {
     console.log('      > Stopping and deleting proxy container: ' + name);
 
-    var command = 'cd ..; sh scripts/stop_proxy_container.sh ' + name;
+    var command = 'cd ..; ./scripts/stop_proxy_container.sh ' + name;
     runCommand(command, done);
 }
 
 describe('proxy', function () {
-    this.timeout(15000);
+    this.timeout(30000);
 
     before(function (done) {
         console.log('    > Building and starting backend container');
 
-        var command = 'cd ..; sh scripts/run_backend.sh';
+        var command = 'cd ..; ./scripts/run_backend.sh';
         runCommand(command, done);
     });
 
     after(function (done) {
         console.log('    > Stopping and deleting backend container');
 
-        var command = 'cd ..; sh scripts/stop_backend.sh';
+        var command = 'cd ..; ./scripts/stop_backend.sh';
         runCommand(command, done);
     });
 

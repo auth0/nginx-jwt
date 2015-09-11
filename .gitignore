@@ -39,6 +39,12 @@ luac.out
 *.x86_64
 *.hex
 
+# npm
+npm-debug.log
+
+# Vagrant
+.vagrant/
+
 # Other
 *.lua.swp
 lib/
