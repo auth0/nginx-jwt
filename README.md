@@ -6,6 +6,7 @@
 
 - [Key Features](#key-features)
 - [Install](#install)
+- [Configuration](#configuration)
 - [Usage](#usage)
 - [API Reference](#api-reference)
 - [Tests](#tests)
@@ -45,6 +46,9 @@ Install steps:
         ...
     }
     ```
+
+## Configuration
+
 1. Export the `JWT_SECRET` environment variable on the Nginx host, setting it equal to your JWT secret.  Then expose it to Nginx server:  
     ```lua
     # nginx.conf:
