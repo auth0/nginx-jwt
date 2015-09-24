@@ -14,13 +14,14 @@ else
 fi
 
 # ensure a supported command
-commands=(run tests deps clean)
+commands=(run tests deps clean package)
 if [[ ! ${commands[*]} =~ "$command" ]]; then
     echo -e "${cyan}Unsupported command. Try:${no_color}"
     echo -e "run [NAME]: build and run backend and the specified proxy container and report back the proxy's URL"
     echo -e "tests: run the integration tests, building and running all necessary containers"
     echo -e "deps: build only Lua script dependencies"
     echo -e "clean: stop/delete all running containers and remove all images"
+    echo -e "package: build a release package archive"
 fi
 
 if [[ "$command" == "run" ]]; then
