@@ -10,6 +10,7 @@
 - [Usage](#usage)
 - [API Reference](#api-reference)
 - [Tests](#tests)
+- [Packaging](#packaging)
 - [Issue Reporting](#issue-reporting)
 - [Contributors](#contributors)
 - [License](#license)
@@ -22,21 +23,12 @@
 
 ## Install
 
-It is recommended to use the latest [ngx_openresty bundle](http://openresty.org/) directly as this script (and its dependencies) depend on components that are installed by **openresty**.
+> **IMPORTANT**: **nginx-jwt** is a Lua script that is designed to run on Nginx servers that have the [HttpLuaModule](http://wiki.nginx.org/HttpLuaModule) installed. But ultimately its dependencies require components available in the [OpenResty](http://openresty.org/) distribution of Nginx. Therefore, it is recommended that you use **OpenResty** as your Nginx server, and these instructions make that assumption.
 
 Install steps:
 
-1. Build the Lua script dependencies using this command:  
-
-    ```bash
-    ./build deps
-    ```
-
-    This will create a local `lib/` directory that contains all Lua scripts that the **nginx-jwt** script depends on.
-
-    **NOTE**: This command should work on Mac OS as well as Ubuntu.
-
-1. Deploy the [`nginx-jwt.lua`](nginx-jwt.lua) script as well as the local `lib/` directory (generated in the previous step) to one directory on your Nginx server.
+1. Download the latest archive package from [releases](releases).
+1. Extract the archive and deploy its contents to a directory on your Nginx server.
 1. Specify this directory's path using ngx_lua's [lua_package_path](https://github.com/openresty/lua-nginx-module#lua_package_path) directive:  
     ```lua
     # nginx.conf:
@@ -391,6 +383,21 @@ All Node.js dependencies (npm packages) for tests are maintained in this [`packa
 #### Proxy base Docker image
 
 The proxy base Docker image may need to be updated periodically, usually to just rev the version of OpenResty that its using. This can be done by modifying the image's [`Dockerfile`](hosts/proxy/Dockerfile). Any change to this file will automatically result in new image builds when the `build` script is run.
+
+## Packaging
+
+When a new version of the script needs to be released, the following should be done:
+
+> **NOTE**: These steps can only performed by GitHub users with commit access to the project.
+
+1. Increment the [Semver](http://semver.org/) version in the [`version.txt`](version.txt) file as needed.
+1. Create a new git tag with the same version value (prefiexed with `v`) and push it to GitHub.
+1. Create a new GitHub release in [releases](releases) that's associated with the above tag.
+1. Run the following command to create a release package archive and then upload it to the release created above:  
+
+  ```bash
+  ./build package
+  ```
 
 ## Issue Reporting
 
