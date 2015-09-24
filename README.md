@@ -10,6 +10,7 @@
 - [Usage](#usage)
 - [API Reference](#api-reference)
 - [Tests](#tests)
+- [Packaging](#packaging)
 - [Issue Reporting](#issue-reporting)
 - [Contributors](#contributors)
 - [License](#license)
@@ -382,6 +383,21 @@ All Node.js dependencies (npm packages) for tests are maintained in this [`packa
 #### Proxy base Docker image
 
 The proxy base Docker image may need to be updated periodically, usually to just rev the version of OpenResty that its using. This can be done by modifying the image's [`Dockerfile`](hosts/proxy/Dockerfile). Any change to this file will automatically result in new image builds when the `build` script is run.
+
+## Packaging
+
+When a new version of the script needs to be released, the following should be done:
+
+> **NOTE**: These steps can only performed by GitHub users with commit access to the project.
+
+1. Increment the [Semver](http://semver.org/) version in the [`version.txt`](version.txt) file as needed.
+1. Create a new git tag with the same version value (prefiexed with `v`) and push it to GitHub.
+1. Create a new GitHub release in [releases](releases) that's associated with the above tag.
+1. Run the following command to create a release package archive and then upload it to the release created above:  
+
+  ```bash
+  ./build package
+  ```
 
 ## Issue Reporting
 
