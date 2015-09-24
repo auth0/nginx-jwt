@@ -22,21 +22,12 @@
 
 ## Install
 
-It is recommended to use the latest [ngx_openresty bundle](http://openresty.org/) directly as this script (and its dependencies) depend on components that are installed by **openresty**.
+> **IMPORTANT**: **nginx-jwt** is a Lua script that is designed to run on Nginx servers that have the [HttpLuaModule](http://wiki.nginx.org/HttpLuaModule) installed. But ultimately its dependencies require components available in the [OpenResty](http://openresty.org/) distribution of Nginx. Therefore, it is recommended that you use **OpenResty** as your Nginx server, and these instructions make that assumption.
 
 Install steps:
 
-1. Build the Lua script dependencies using this command:  
-
-    ```bash
-    ./build deps
-    ```
-
-    This will create a local `lib/` directory that contains all Lua scripts that the **nginx-jwt** script depends on.
-
-    **NOTE**: This command should work on Mac OS as well as Ubuntu.
-
-1. Deploy the [`nginx-jwt.lua`](nginx-jwt.lua) script as well as the local `lib/` directory (generated in the previous step) to one directory on your Nginx server.
+1. Download the latest archive package from [releases](releases).
+1. Extract the archive and deploy its contents to a directory on your Nginx server.
 1. Specify this directory's path using ngx_lua's [lua_package_path](https://github.com/openresty/lua-nginx-module#lua_package_path) directive:  
     ```lua
     # nginx.conf:
