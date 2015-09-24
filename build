@@ -37,6 +37,18 @@ if [[ ${commands[*]} =~ "$command" ]]; then
     ./scripts/build_deps.sh
 fi
 
+if [[ "$command" == "package" ]]; then
+    # packaging scripts for a release
+    archive=nginx-jwt.tar.gz
+    rm $archive
+
+    tar cvf $archive ./nginx-jwt.lua
+    tar rvf $archive ./version.txt
+    cd lib/
+    tar rvf ../$archive ./
+    cd ..
+fi
+
 if [[ "$command" == "run" ]]; then
     # run backend container
     ./scripts/run_backend.sh
