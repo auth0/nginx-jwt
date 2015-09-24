@@ -39,7 +39,7 @@ if [[ ${commands[*]} =~ "$command" ]]; then
 fi
 
 if [[ "$command" == "package" ]]; then
-    # packaging scripts for a release
+    echo -e "${cyan}Building package archive for version:${no_color} $(cat version.txt)"
     archive=nginx-jwt.tar.gz
     rm $archive
 
