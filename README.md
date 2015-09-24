@@ -391,7 +391,13 @@ When a new version of the script needs to be released, the following should be d
 > **NOTE**: These steps can only performed by GitHub users with commit access to the project.
 
 1. Increment the [Semver](http://semver.org/) version in the [`version.txt`](version.txt) file as needed.
-1. Create a new git tag with the same version value (prefiexed with `v`) and push it to GitHub.
+1. Create a new git tag with the same version value (prefiexed with `v`):
+
+  ```bash
+  git tag v$(cat version.txt)
+  ```
+
+1. Push the tag to GitHub.
 1. Create a new GitHub release in [releases](releases) that's associated with the above tag.
 1. Run the following command to create a release package archive and then upload it to the release created above:  
 
