@@ -41,7 +41,9 @@ fi
 if [[ "$command" == "package" ]]; then
     echo -e "${cyan}Building package archive for version:${no_color} $(cat version.txt)"
     archive=nginx-jwt.tar.gz
+    if [ -f $archive ] ; then 
     rm $archive
+    fi
 
     tar cvf $archive ./nginx-jwt.lua
     tar rvf $archive ./version.txt
